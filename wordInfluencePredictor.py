@@ -126,4 +126,3 @@ posts = amalgamatePosts(coinNames, period)
 categorizedPosts = categorizePosts(posts, coinNames)
 wordFrequencies = getWordFrequency(categorizedPosts)
 print(getCoinScores(wordFrequencies))
-            
