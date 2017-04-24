@@ -20,7 +20,7 @@ def chunks(listToCut, maxLength):
 
 def initTwitterApi():
    import tweepy
-   twitterKeys = open("twitterKeys.txt").read().strip().split() 
+   twitterKeys = open("twitterKeysMiner.txt").read().strip().split() 
    auth = tweepy.OAuthHandler(twitterKeys[0], twitterKeys[1])
    auth.set_access_token(twitterKeys[2], twitterKeys[3])
    return tweepy.API(auth, wait_on_rate_limit_notify=True, wait_on_rate_limit=True)
