@@ -97,7 +97,6 @@ def getWordFrequency(catgeorizedPosts):
    for coin in catgeorizedPosts:
       wordFrequencies[coin] = {}
       wordOccurences = FreqDist(catgeorizedPosts[coin].split()).most_common()
-      print(wordOccurences)
       bigrams = [b[0] + " " + b[1] for b in zip(catgeorizedPosts[coin].split(" ")[:-1], catgeorizedPosts[coin].split(" ")[1:])]
       wordOccurences.extend(FreqDist(bigrams).most_common())
       totalWordCount = len(catgeorizedPosts[coin].split())
