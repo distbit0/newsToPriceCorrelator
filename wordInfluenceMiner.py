@@ -150,18 +150,17 @@ def updateFile(wordInfluences):
 
 while True:
    import time
-   #while True:
-      #try:
-   coinNames = getCoinNames()
-   posts = amalgamatePosts(coinNames, period)
-   categorizedPosts = categorizePosts(posts, coinNames)
-   wordFrequencies = getWordFrequency(categorizedPosts)
-   coinPriceChanges = getPriceMovement(coinNames, period)
-   wordInfluences = getWordsInfluence(coinPriceChanges, wordFrequencies)
-   updateFile(wordInfluences)
-   print("\n\n\nLoop completed\n\n\n")
-         #break
-      #except Exception: # Replace Exception with something more specific.
-         #continue
+   while True:
+      try:
+         coinNames = getCoinNames()
+         posts = amalgamatePosts(coinNames, period)
+         categorizedPosts = categorizePosts(posts, coinNames)
+         wordFrequencies = getWordFrequency(categorizedPosts)
+         coinPriceChanges = getPriceMovement(coinNames, period)
+         wordInfluences = getWordsInfluence(coinPriceChanges, wordFrequencies)
+         updateFile(wordInfluences)
+         print("\n\n\nLoop completed\n\n\n")
+         break
+      except:
+         continue
    time.sleep(period)
-
