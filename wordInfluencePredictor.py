@@ -59,6 +59,9 @@ def getCoinNames():
    return coinNames
 
 
+
+
+
 def amalgamatePosts(coinNames, period):
    posts = {}
    usersPosts = {}
@@ -109,6 +112,8 @@ def getCoinScores(wordFrequencies):
    import json
    coinScores = {}
    wordInfluences = json.loads(open("wordInfluences.json").read())
+   avgWordScore = sum([value[0] / value[1] for value in wordInfluences.values()]) / float(len(wordInfluences))
+   
    for coin in wordFrequencies:
       coinScore = 0
       validWords = 0
@@ -118,11 +123,14 @@ def getCoinScores(wordFrequencies):
             validWords += 1
       coinScore = coinScore/validWords
       coinScores[coin] = coinScore
-   return coinScores
+   return [avgWordScore, coinScores]
    
-
+def saveCoinScores(coinScores):
+   print(coinScores)
+   
 coinNames = getCoinNames()
 posts = amalgamatePosts(coinNames, period)
 categorizedPosts = categorizePosts(posts, coinNames)
 wordFrequencies = getWordFrequency(categorizedPosts)
-print(getCoinScores(wordFrequencies))
+coinScores = getCoinScores(wordFrequencies)
+saveCoinScores(coinScores) #[1]
