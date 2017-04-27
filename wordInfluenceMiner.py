@@ -169,7 +169,6 @@ while True:
          coinPriceChanges = getPriceMovement(coinNames, period)
          wordInfluences = getWordsInfluence(coinPriceChanges, wordFrequencies)
          updateFile(wordInfluences)
-         print("\n\n\nLoop completed\n\n\n")
          break
       except:
          print("Exception occured: \n" + sys.exc_info()[1])
