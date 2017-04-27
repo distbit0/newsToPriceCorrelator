@@ -157,6 +157,7 @@ def getDelayTime():
    
    
 import time
+import sys
 while True:
    time.sleep(getDelayTime())
    while True:
@@ -171,4 +172,5 @@ while True:
          print("\n\n\nLoop completed\n\n\n")
          break
       except:
+         print("Exception occured: \n" + sys.exc_info()[1])
          continue
