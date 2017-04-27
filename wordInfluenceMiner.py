@@ -158,6 +158,7 @@ def getDelayTime():
    
 import time
 while True:
+   time.sleep(getDelayTime())
    while True:
       try:
          coinNames = getCoinNames()
@@ -171,4 +172,3 @@ while True:
          break
       except:
          continue
-   time.sleep(getDelayTime())
