@@ -152,7 +152,7 @@ def getDelayTime():
    secondsPerDay = 60*60*24
    currentTime = time.time()
    secondsSinceMidnight = currentTime % secondsPerDay
-   secondsUntilMidnight = day - secondsSinceMidnight
+   secondsUntilMidnight = secondsPerDay - secondsSinceMidnight
    return secondsUntilMidnight
    
    
