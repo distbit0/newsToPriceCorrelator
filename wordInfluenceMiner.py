@@ -14,7 +14,7 @@ def removeText(text, term="https?://[^\s]+"):
   
   
 def chunks(listToCut, maxLength):
-    for i in range(0, len(listToCut), maxLength):
+   for i in range(0, len(listToCut), maxLength):
       yield listToCut[i:i+maxLength]
 
 
@@ -24,8 +24,8 @@ def initTwitterApi():
    auth = tweepy.OAuthHandler(twitterKeys[0], twitterKeys[1])
    auth.set_access_token(twitterKeys[2], twitterKeys[3])
    return tweepy.API(auth, wait_on_rate_limit_notify=True, wait_on_rate_limit=True)
-   
-   
+
+
 def getTwitterPosts(coinNames, period):
    import tweepy
    import time
@@ -147,8 +147,17 @@ def updateFile(wordInfluences):
       wordInfluencesFileObj.write(json.dumps(wordInfluencesFile, indent=2))
 
 
-while True:
+def getDelayTime():
    import time
+   secondsPerDay = 60*60*24
+   currentTime = time.time()
+   secondsSinceMidnight = currentTime % secondsPerDay
+   secondsUntilMidnight = day - secondsSinceMidnight
+   return secondsUntilMidnight
+   
+   
+import time
+while True:
    while True:
       try:
          coinNames = getCoinNames()
@@ -162,4 +171,4 @@ while True:
          break
       except:
          continue
-   time.sleep(period)
+   time.sleep(getDelayTime())
