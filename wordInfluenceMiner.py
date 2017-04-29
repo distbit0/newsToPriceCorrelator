@@ -55,15 +55,13 @@ def removeDuplicateWords(coinPosts):
    
 def generateAndRemoveDuplicateBigrams(coinPosts):
    import itertools
-   userBigrams = {}
+   bigrams = {}
    for user in coinPosts:
-      bigrams = []
+      userBigrams = []
       for post in coinPosts[user]:
-         bigrams.extend([b[0] + " " + b[1] for b in zip(post.split(" ")[:-1], post.split(" ")[1:])])
-      userBigrams[user] = list(set(bigrams))
-   return list(set(itertools.chain.from_iterable(userBigrams))
-      
-   
+         userBigrams.extend([b[0] + " " + b[1] for b in zip(post.split(" ")[:-1], post.split(" ")[1:])])
+      bigrams.extend(list(set(userBigrams)))
+   return bigrams
 ########################################
 
 
