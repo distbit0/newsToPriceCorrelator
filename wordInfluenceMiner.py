@@ -165,6 +165,16 @@ def getDelayTime():
    return secondsUntilMidnight
    
    
+def logError(error):
+   import json
+   import time
+   currentTime = time.strftime("%Z - %d/%m/%Y, %H:%M:%S", time.localtime(time.time()))
+   errorLogs = json.loads(open("errorLogs.txt").read())
+   errorLogs.append({"currentTime": currentTime, "error": error})
+   with open("errorLogs.json", "w+") as errorLogFile:
+      errorLogFile.write(json.dumps(errorLogs))
+   
+   
 import time
 import sys
 import traceback
@@ -182,4 +192,5 @@ while True:
          break
       except:
          print("Exception occured: \n\n" + traceback.format_exc())
+         logError(traceback.format_exc())
          continue
