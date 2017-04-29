@@ -14,18 +14,18 @@ def removeText(text, term="https?://[^\s]+"):
   
   
 def chunks(listToCut, maxLength):
-    for i in range(0, len(listToCut), maxLength):
+   for i in range(0, len(listToCut), maxLength):
       yield listToCut[i:i+maxLength]
 
 
 def initTwitterApi():
    import tweepy
-   twitterKeys = open("twitterKeysPredictor.txt").read().strip().split() 
+   twitterKeys = open("twitterKeysMiner.txt").read().strip().split()
    auth = tweepy.OAuthHandler(twitterKeys[0], twitterKeys[1])
    auth.set_access_token(twitterKeys[2], twitterKeys[3])
    return tweepy.API(auth, wait_on_rate_limit_notify=True, wait_on_rate_limit=True)
-   
-   
+
+
 def getTwitterPosts(coinNames, period):
    import tweepy
    import time
@@ -35,14 +35,33 @@ def getTwitterPosts(coinNames, period):
    
    coinNames = [key for key in coinNames.keys()]
    api = initTwitterApi()
-   sinceDate = datetime.fromtimestamp(time.time() - period).strftime('%Y-%m-%d')
+   sinceDate = datetime.fromtimestamp(time.time() - period * 2).strftime('%Y-%m-%d')
+   untilDate = datetime.fromtimestamp(time.time() - period).strftime('%Y-%m-%d')
    for chunk in chunks(coinNames, 10):
-      for tweet in tweepy.Cursor(api.search, q=" OR ".join(chunk), tweet_mode="extended", since=sinceDate, lang="en").items(1000):
+      for tweet in tweepy.Cursor(api.search, q=" OR ".join(chunk), tweet_mode="extended", since=sinceDate, until=untilDate, lang="en").items(1000):
          tweetText = removeText(tweet._json["full_text"]).lower().strip()
          translator = str.maketrans('', '', string.punctuation)
          tweetText = tweetText.translate(translator)
          tweets[tweetText] = tweet._json["user"]["id"]
    return tweets
+   
+   
+def removeDuplicateWords(coinPosts):
+   import itertools
+   allCoinWords = []
+   for user in coinPosts:
+      allCoinWords.extend(list(set(itertools.chain.from_iterable(coinPosts[user]))))
+   return allCoinWords
+   
+   
+def generateAndRemoveDuplicateBigrams(coinPosts):
+   bigrams = []
+   for user in coinPosts:
+      userBigrams = []
+      for post in coinPosts[user]:
+         userBigrams.extend([b[0] + " " + b[1] for b in zip(post.split(" ")[:-1], post.split(" ")[1:])])
+      bigrams.extend(list(set(userBigrams)))
+   return bigrams
 ########################################
 
 
@@ -59,23 +78,10 @@ def getCoinNames():
    return coinNames
 
 
-
-
-
 def amalgamatePosts(coinNames, period):
    posts = {}
-   usersPosts = {}
-   finalPosts = []
-
    posts.update(getTwitterPosts(coinNames, period))
-
-   for post in posts:
-      if not posts[post] in usersPosts.keys():
-         usersPosts[posts[post]] = []
-      if not post in usersPosts[posts[post]]:
-         finalPosts.append(post)
-         usersPosts[posts[post]].append(post)
-   return finalPosts
+   return posts
 
 
 def categorizePosts(posts, coinNames):
@@ -85,24 +91,25 @@ def categorizePosts(posts, coinNames):
       coins = [coinName for coinName in coinNames if coinName in post]
       if len(coins) == 1:
          coin = coins[0]
-         post = removeText(post, coin)
+         refinedPost = removeText(post, coin)
          if not coin in categorizedPosts.keys():
-            categorizedPosts[coin] = "" 
-         categorizedPosts[coin] += post + " "
+            categorizedPosts[coin] = {}
+         if not posts[post] in categorizedPosts[coin]:
+            categorizedPosts[coin][posts[post]] = []
+         categorizedPosts[coin][posts[post]].append(refinedPost)
    return categorizedPosts
  
 
 def getWordFrequency(categorizedPosts):
-   import string
    from nltk import FreqDist
    wordFrequencies = {}
    for coin in categorizedPosts:
       wordFrequencies[coin] = {}
-      bigrams = [b[0] + " " + b[1] for b in zip(categorizedPosts[coin].split(" ")[:-1], categorizedPosts[coin].split(" ")[1:])]
-      allWords = categorizedPosts[coin].split()
+      bigrams = generateAndRemoveDuplicateBigrams(categorizedPosts[coin])
+      allWords = removeDuplicateWords(categorizedPosts[coin])
       allWords.extend(bigrams)
-      wordOccurences = FreqDist(totalWords).most_common()
-      totalWordCount = len(wordOccurences)
+      wordOccurences = FreqDist(allWords).most_common()
+      totalWordCount = len(allWords)
       for word in wordOccurences:
          wordCountRatio = (word[1] / totalWordCount) * 100
          wordFrequencies[coin][word[0]] = wordCountRatio
@@ -129,9 +136,10 @@ def getCoinScores(wordFrequencies):
 def saveCoinScores(coinScores):
    print(coinScores)
    
+   
 coinNames = getCoinNames()
 posts = amalgamatePosts(coinNames, period)
 categorizedPosts = categorizePosts(posts, coinNames)
 wordFrequencies = getWordFrequency(categorizedPosts)
 coinScores = getCoinScores(wordFrequencies)
-saveCoinScores(coinScores) #[1]
+saveCoinScores(coinScores) 
