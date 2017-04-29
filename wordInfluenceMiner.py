@@ -53,6 +53,7 @@ def removeDuplicateWords(coinPosts):
       allCoinWords.extend(list(set(itertools.chain.from_iterable(coinPosts[user]))))
    return allCoinWords
    
+   
 def generateAndRemoveDuplicateBigrams(coinPosts):
    bigrams = []
    for user in coinPosts:
@@ -61,6 +62,25 @@ def generateAndRemoveDuplicateBigrams(coinPosts):
          userBigrams.extend([b[0] + " " + b[1] for b in zip(post.split(" ")[:-1], post.split(" ")[1:])])
       bigrams.extend(list(set(userBigrams)))
    return bigrams
+   
+   
+def getDelayTime():
+   import time
+   secondsPerDay = 60*60*24
+   currentTime = time.time()
+   secondsSinceMidnight = currentTime % secondsPerDay
+   secondsUntilMidnight = secondsPerDay - secondsSinceMidnight
+   return secondsUntilMidnight
+   
+   
+def logError(error):
+   import json
+   import time
+   currentTime = time.strftime("%Z - %d/%m/%Y, %H:%M:%S", time.localtime(time.time()))
+   errorLogs = json.loads(open("errorLogs.txt").read())
+   errorLogs.append({"time": currentTime, "error": error})
+   with open("errorLogs.json", "w+") as errorLogFile:
+      errorLogFile.write(json.dumps(errorLogs))
 ########################################
 
 
@@ -154,25 +174,6 @@ def updateFile(wordInfluences):
       wordInfluencesFile[word] = [totalInfluence + wordInfluences[word][0], incrementCount + wordInfluences[word][1]]
    with open("wordInfluences.json", "w") as wordInfluencesFileObj:
       wordInfluencesFileObj.write(json.dumps(wordInfluencesFile, indent=2))
-
-
-def getDelayTime():
-   import time
-   secondsPerDay = 60*60*24
-   currentTime = time.time()
-   secondsSinceMidnight = currentTime % secondsPerDay
-   secondsUntilMidnight = secondsPerDay - secondsSinceMidnight
-   return secondsUntilMidnight
-   
-   
-def logError(error):
-   import json
-   import time
-   currentTime = time.strftime("%Z - %d/%m/%Y, %H:%M:%S", time.localtime(time.time()))
-   errorLogs = json.loads(open("errorLogs.txt").read())
-   errorLogs.append({"currentTime": currentTime, "error": error})
-   with open("errorLogs.json", "w+") as errorLogFile:
-      errorLogFile.write(json.dumps(errorLogs))
    
    
 import time
