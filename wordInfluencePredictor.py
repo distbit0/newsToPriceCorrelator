@@ -35,10 +35,9 @@ def getTwitterPosts(coinNames, period):
    
    coinNames = [key for key in coinNames.keys()]
    api = initTwitterApi()
-   sinceDate = datetime.fromtimestamp(time.time() - period * 2).strftime('%Y-%m-%d')
-   untilDate = datetime.fromtimestamp(time.time() - period).strftime('%Y-%m-%d')
+   sinceDate = datetime.fromtimestamp(time.time() - period).strftime('%Y-%m-%d')
    for chunk in chunks(coinNames, 10):
-      for tweet in tweepy.Cursor(api.search, q=" OR ".join(chunk), tweet_mode="extended", since=sinceDate, until=untilDate, lang="en").items(1000):
+      for tweet in tweepy.Cursor(api.search, q=" OR ".join(chunk), tweet_mode="extended", since=sinceDate, lang="en").items(1000):
          tweetText = removeText(tweet._json["full_text"]).lower().strip()
          translator = str.maketrans('', '', string.punctuation)
          tweetText = tweetText.translate(translator)
