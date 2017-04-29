@@ -20,7 +20,7 @@ def chunks(listToCut, maxLength):
 
 def initTwitterApi():
    import tweepy
-   twitterKeys = open("twitterKeysMiner.txt").read().strip().split() 
+   twitterKeys = open("twitterKeysMiner.txt").read().strip().split()
    auth = tweepy.OAuthHandler(twitterKeys[0], twitterKeys[1])
    auth.set_access_token(twitterKeys[2], twitterKeys[3])
    return tweepy.API(auth, wait_on_rate_limit_notify=True, wait_on_rate_limit=True)
@@ -54,8 +54,7 @@ def removeDuplicateWords(coinPosts):
    return allCoinWords
    
 def generateAndRemoveDuplicateBigrams(coinPosts):
-   import itertools
-   bigrams = {}
+   bigrams = []
    for user in coinPosts:
       userBigrams = []
       for post in coinPosts[user]:
@@ -79,6 +78,7 @@ def getCoinNames():
 
 
 def amalgamatePosts(coinNames, period):
+   posts = {}
    posts.update(getTwitterPosts(coinNames, period))
    return posts
 
@@ -92,15 +92,14 @@ def categorizePosts(posts, coinNames):
          coin = coins[0]
          refinedPost = removeText(post, coin)
          if not coin in categorizedPosts.keys():
-            categorizedPosts[coin] = []
+            categorizedPosts[coin] = {}
          if not posts[post] in categorizedPosts[coin]:
-            categorizedPosts[coin][post[post] = []
-         categorizedPosts[coin][post[post].append(refinedPost)
+            categorizedPosts[coin][posts[post]] = []
+         categorizedPosts[coin][posts[post]].append(refinedPost)
    return categorizedPosts
  
 
 def getWordFrequency(categorizedPosts):
-   import string
    from nltk import FreqDist
    wordFrequencies = {}
    for coin in categorizedPosts:
@@ -109,7 +108,7 @@ def getWordFrequency(categorizedPosts):
       allWords = removeDuplicateWords(categorizedPosts[coin])
       allWords.extend(bigrams)
       wordOccurences = FreqDist(allWords).most_common()
-      totalWordCount = len(wordOccurences)
+      totalWordCount = len(allWords)
       for word in wordOccurences:
          wordCountRatio = (word[1] / totalWordCount) * 100
          wordFrequencies[coin][word[0]] = wordCountRatio
@@ -168,6 +167,7 @@ def getDelayTime():
    
 import time
 import sys
+import traceback
 while True:
    time.sleep(getDelayTime())
    while True:
@@ -181,5 +181,5 @@ while True:
          updateFile(wordInfluences)
          break
       except:
-         print("Exception occured: \n" + sys.exc_info()[1])
+         print("Exception occured: \n\n" + traceback.format_exc())
          continue
