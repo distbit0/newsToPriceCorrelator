@@ -92,16 +92,17 @@ def categorizePosts(posts, coinNames):
    return categorizedPosts
  
 
-def getWordFrequency(catgeorizedPosts):
+def getWordFrequency(categorizedPosts):
    import string
    from nltk import FreqDist
    wordFrequencies = {}
-   for coin in catgeorizedPosts:
+   for coin in categorizedPosts:
       wordFrequencies[coin] = {}
-      wordOccurences = FreqDist(catgeorizedPosts[coin].split()).most_common()
-      bigrams = [b[0] + " " + b[1] for b in zip(catgeorizedPosts[coin].split(" ")[:-1], catgeorizedPosts[coin].split(" ")[1:])]
-      wordOccurences.extend(FreqDist(bigrams).most_common())
-      totalWordCount = len(catgeorizedPosts[coin].split())
+      bigrams = [b[0] + " " + b[1] for b in zip(categorizedPosts[coin].split(" ")[:-1], categorizedPosts[coin].split(" ")[1:])]
+      allWords = categorizedPosts[coin].split()
+      allWords.extend(bigrams)
+      wordOccurences = FreqDist(totalWords).most_common()
+      totalWordCount = len(wordOccurences)
       for word in wordOccurences:
          wordCountRatio = (word[1] / totalWordCount) * 100
          wordFrequencies[coin][word[0]] = wordCountRatio
