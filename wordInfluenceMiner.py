@@ -44,6 +44,15 @@ def getTwitterPosts(coinNames, period):
          tweetText = tweetText.translate(translator)
          tweets[tweetText] = tweet._json["user"]["id"]
    return tweets
+   
+   
+def removeDuplicateWords(coinPosts):
+   import itertools
+   allCoinWords = []
+   for user in coinPosts:
+      allCoinWords.extend(list(set(itertools.chain.from_iterable(coinPosts[user]))))
+   return allCoinWords
+   
 ########################################
 
 
@@ -61,21 +70,9 @@ def getCoinNames():
 
 
 def amalgamatePosts(coinNames, period):
-   posts = {}
-   usersPosts = {}
-   finalPosts = []
-
    posts.update(getTwitterPosts(coinNames, period))
+   return posts
 
-   for post in posts:
-      if not posts[post] in usersPosts.keys():
-         usersPosts[posts[post]] = []
-      if not post in usersPosts[posts[post]]:
-         finalPosts.append(post)
-         usersPosts[posts[post]].append(post)
-   return finalPosts
-
-def remove
 
 def categorizePosts(posts, coinNames):
    import json
@@ -84,10 +81,12 @@ def categorizePosts(posts, coinNames):
       coins = [coinName for coinName in coinNames if coinName in post]
       if len(coins) == 1:
          coin = coins[0]
-         post = removeText(post, coin)
+         refinedPost = removeText(post, coin)
          if not coin in categorizedPosts.keys():
             categorizedPosts[coin] = []
-         categorizedPosts[coin].append(post)
+         if not posts[post] in categorizedPosts[coin]:
+            categorizedPosts[coin][post[post] = []
+         categorizedPosts[coin][post[post].append(refinedPost)
    return categorizedPosts
  
 
@@ -100,7 +99,7 @@ def getWordFrequency(categorizedPosts):
       bigrams = []
       for post in categorizedPosts[coin]:
          bigrams.extend([b[0] + " " + b[1] for b in zip(post.split(" ")[:-1], post.split(" ")[1:])])
-      allWords = categorizedPosts[coin]
+      allWords = removeDuplicateWords(categorizedPosts[coin])
       allWords.extend(bigrams)
       wordOccurences = FreqDist(allWords).most_common()
       totalWordCount = len(wordOccurences)
