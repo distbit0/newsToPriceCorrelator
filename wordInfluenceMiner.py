@@ -53,6 +53,17 @@ def removeDuplicateWords(coinPosts):
       allCoinWords.extend(list(set(itertools.chain.from_iterable(coinPosts[user]))))
    return allCoinWords
    
+def generateAndRemoveDuplicateBigrams(coinPosts):
+   import itertools
+   userBigrams = {}
+   for user in coinPosts:
+      bigrams = []
+      for post in coinPosts[user]:
+         bigrams.extend([b[0] + " " + b[1] for b in zip(post.split(" ")[:-1], post.split(" ")[1:])])
+      userBigrams[user] = list(set(bigrams))
+   return list(set(itertools.chain.from_iterable(userBigrams))
+      
+   
 ########################################
 
 
@@ -96,9 +107,7 @@ def getWordFrequency(categorizedPosts):
    wordFrequencies = {}
    for coin in categorizedPosts:
       wordFrequencies[coin] = {}
-      bigrams = []
-      for post in categorizedPosts[coin]:
-         bigrams.extend([b[0] + " " + b[1] for b in zip(post.split(" ")[:-1], post.split(" ")[1:])])
+      bigrams = generateAndRemoveDuplicateBigrams(categorizedPosts[coin])
       allWords = removeDuplicateWords(categorizedPosts[coin])
       allWords.extend(bigrams)
       wordOccurences = FreqDist(allWords).most_common()
