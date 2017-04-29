@@ -50,7 +50,11 @@ def removeDuplicateWords(coinPosts):
    import itertools
    allCoinWords = []
    for user in coinPosts:
-      allCoinWords.extend(list(set(itertools.chain.from_iterable(coinPosts[user]))))
+      userWords = []
+      for post in coinPosts[user]: 
+         userWords.extend(post.split(" "))
+      allCoinWords.extend(list(set(userWords)))
+   print(allCoinWords)
    return allCoinWords
    
    
@@ -70,7 +74,7 @@ def getDelayTime():
    currentTime = time.time()
    secondsSinceMidnight = currentTime % secondsPerDay
    secondsUntilMidnight = secondsPerDay - secondsSinceMidnight
-   return secondsUntilMidnight
+   return 0#secondsUntilMidnight
    
    
 def logError(error):
@@ -110,12 +114,11 @@ def categorizePosts(posts, coinNames):
       coins = [coinName for coinName in coinNames if coinName in post]
       if len(coins) == 1:
          coin = coins[0]
-         refinedPost = removeText(post, coin)
          if not coin in categorizedPosts.keys():
             categorizedPosts[coin] = {}
          if not posts[post] in categorizedPosts[coin]:
             categorizedPosts[coin][posts[post]] = []
-         categorizedPosts[coin][posts[post]].append(refinedPost)
+         categorizedPosts[coin][posts[post]].append(post)
    return categorizedPosts
  
 
