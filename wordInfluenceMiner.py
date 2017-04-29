@@ -75,7 +75,6 @@ def amalgamatePosts(coinNames, period):
          usersPosts[posts[post]].append(post)
    return finalPosts
 
-def remove
 
 def categorizePosts(posts, coinNames):
    import json
