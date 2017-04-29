@@ -75,6 +75,7 @@ def amalgamatePosts(coinNames, period):
          usersPosts[posts[post]].append(post)
    return finalPosts
 
+def remove
 
 def categorizePosts(posts, coinNames):
    import json
@@ -85,8 +86,8 @@ def categorizePosts(posts, coinNames):
          coin = coins[0]
          post = removeText(post, coin)
          if not coin in categorizedPosts.keys():
-            categorizedPosts[coin] = "" 
-         categorizedPosts[coin] += post + " "
+            categorizedPosts[coin] = []
+         categorizedPosts[coin].append(post)
    return categorizedPosts
  
 
@@ -96,8 +97,10 @@ def getWordFrequency(categorizedPosts):
    wordFrequencies = {}
    for coin in categorizedPosts:
       wordFrequencies[coin] = {}
-      bigrams = [b[0] + " " + b[1] for b in zip(categorizedPosts[coin].split(" ")[:-1], categorizedPosts[coin].split(" ")[1:])]
-      allWords = categorizedPosts[coin].split()
+      bigrams = []
+      for post in categorizedPosts[coin]:
+         bigrams.extend([b[0] + " " + b[1] for b in zip(post.split(" ")[:-1], post.split(" ")[1:])])
+      allWords = categorizedPosts[coin]
       allWords.extend(bigrams)
       wordOccurences = FreqDist(totalWords).most_common()
       totalWordCount = len(wordOccurences)
