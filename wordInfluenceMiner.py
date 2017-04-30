@@ -73,7 +73,7 @@ def getDelayTime():
    currentTime = time.time()
    secondsSinceMidnight = currentTime % secondsPerDay
    secondsUntilMidnight = secondsPerDay - secondsSinceMidnight
-   return 0#secondsUntilMidnight
+   return secondsUntilMidnight
    
    
 def logError(error):
