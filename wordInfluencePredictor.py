@@ -171,17 +171,17 @@ import time
 import sys
 import traceback
 while True:
-   #time.sleep(getDelayTime())
-   #while True:
-      #try:
+   time.sleep(getDelayTime())
+   while True:
+      try:
    coinNames = getCoinNames()
    posts = amalgamatePosts(coinNames, period)
    categorizedPosts = categorizePosts(posts, coinNames)
    wordFrequencies = getWordFrequency(categorizedPosts)
    coinScores = getCoinScores(wordFrequencies)
    saveCoinScores(coinScores)    
-         #break
-      #except:
-         #print("Exception occured: \n\n" + traceback.format_exc())
-         #logError(traceback.format_exc())
-         #continue
+         break
+      except:
+         print("Exception occured: \n\n" + traceback.format_exc())
+         logError(traceback.format_exc())
+         continue
