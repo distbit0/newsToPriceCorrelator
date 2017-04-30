@@ -80,9 +80,12 @@ def logError(error):
    import json
    import time
    currentTime = time.strftime("%Z - %d/%m/%Y, %H:%M:%S", time.localtime(time.time()))
-   errorLogs = json.loads(open("errorLogs.json").read())
+   try:
+      errorLogs = json.loads(open("errorLogs.json").read())
+   except:
+      errorLogs = []
    errorLogs.append({"time": currentTime, "error": error})
-   with open("errorLogs.json", "w+") as errorLogFile:
+   with open("errorLogs.json", "w") as errorLogFile:
       errorLogFile.write(json.dumps(errorLogs))
 ########################################
 
