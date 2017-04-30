@@ -54,7 +54,6 @@ def removeDuplicateWords(coinPosts):
       for post in coinPosts[user]: 
          userWords.extend(post.split(" "))
       allCoinWords.extend(list(set(userWords)))
-   print(allCoinWords)
    return allCoinWords
    
    
@@ -81,7 +80,7 @@ def logError(error):
    import json
    import time
    currentTime = time.strftime("%Z - %d/%m/%Y, %H:%M:%S", time.localtime(time.time()))
-   errorLogs = json.loads(open("errorLogs.txt").read())
+   errorLogs = json.loads(open("errorLogs.json").read())
    errorLogs.append({"time": currentTime, "error": error})
    with open("errorLogs.json", "w+") as errorLogFile:
       errorLogFile.write(json.dumps(errorLogs))
