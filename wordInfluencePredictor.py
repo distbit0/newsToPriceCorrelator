@@ -49,7 +49,10 @@ def removeDuplicateWords(coinPosts):
    import itertools
    allCoinWords = []
    for user in coinPosts:
-      allCoinWords.extend(list(set(itertools.chain.from_iterable(coinPosts[user]))))
+      userWords = []
+      for post in coinPosts[user]: 
+         userWords.extend(post.split(" "))
+      allCoinWords.extend(list(set(userWords)))
    return allCoinWords
    
    
@@ -61,6 +64,25 @@ def generateAndRemoveDuplicateBigrams(coinPosts):
          userBigrams.extend([b[0] + " " + b[1] for b in zip(post.split(" ")[:-1], post.split(" ")[1:])])
       bigrams.extend(list(set(userBigrams)))
    return bigrams
+   
+   
+def getDelayTime():
+   import time
+   secondsPerDay = 60*60*24
+   currentTime = time.time()
+   secondsSinceMidnight = currentTime % secondsPerDay
+   secondsUntilMidnight = secondsPerDay - secondsSinceMidnight
+   return 0#secondsUntilMidnight
+   
+   
+def logError(error):
+   import json
+   import time
+   currentTime = time.strftime("%Z - %d/%m/%Y, %H:%M:%S", time.localtime(time.time()))
+   errorLogs = json.loads(open("errorLogs.txt").read())
+   errorLogs.append({"time": currentTime, "error": error})
+   with open("errorLogs.json", "w+") as errorLogFile:
+      errorLogFile.write(json.dumps(errorLogs))
 ########################################
 
 
@@ -90,12 +112,11 @@ def categorizePosts(posts, coinNames):
       coins = [coinName for coinName in coinNames if coinName in post]
       if len(coins) == 1:
          coin = coins[0]
-         refinedPost = removeText(post, coin)
          if not coin in categorizedPosts.keys():
             categorizedPosts[coin] = {}
          if not posts[post] in categorizedPosts[coin]:
             categorizedPosts[coin][posts[post]] = []
-         categorizedPosts[coin][posts[post]].append(refinedPost)
+         categorizedPosts[coin][posts[post]].append(post)
    return categorizedPosts
  
 
@@ -126,19 +147,41 @@ def getCoinScores(wordFrequencies):
       validWords = 0
       for word in wordFrequencies[coin]:
          if word in wordInfluences:
-            coinScore += wordInfluences[word][0] / wordInfluences[word][1]
-            validWords += 1
-      coinScore = coinScore/validWords
-      coinScores[coin] = coinScore
+            coinScore += (wordInfluences[word][0] / wordInfluences[word][1]) * wordFrequencies[coin][word]
+            validWords += wordFrequencies[coin][word]
+      if validWords != 0:
+         coinScore = coinScore/validWords
+         coinScores[coin] = coinScore
    return [avgWordScore, coinScores]
    
+   
 def saveCoinScores(coinScores):
+   import json
+   import time
+   timeUnix = time.time()
+   currentTime = time.strftime("%Z - %d/%m/%Y, %H:%M:%S", time.localtime(time.time()))
+   oldCoinScores = json.loads(open("historicalCoinScores.json").read())
+   oldCoinScores.append({"time": [timeUnix, currentTime], "avgWordScore": coinScores[0], "coinScores": coinScores[1]})
+   with open("historicalCoinScores.json", "w") as coinScoresFile:
+      coinScoresFile.write(json.dumps(oldCoinScores))
    print(coinScores)
    
    
-coinNames = getCoinNames()
-posts = amalgamatePosts(coinNames, period)
-categorizedPosts = categorizePosts(posts, coinNames)
-wordFrequencies = getWordFrequency(categorizedPosts)
-coinScores = getCoinScores(wordFrequencies)
-saveCoinScores(coinScores) 
+import time
+import sys
+import traceback
+while True:
+   #time.sleep(getDelayTime())
+   #while True:
+      #try:
+   coinNames = getCoinNames()
+   posts = amalgamatePosts(coinNames, period)
+   categorizedPosts = categorizePosts(posts, coinNames)
+   wordFrequencies = getWordFrequency(categorizedPosts)
+   coinScores = getCoinScores(wordFrequencies)
+   saveCoinScores(coinScores)    
+         #break
+      #except:
+         #print("Exception occured: \n\n" + traceback.format_exc())
+         #logError(traceback.format_exc())
+         #continue
