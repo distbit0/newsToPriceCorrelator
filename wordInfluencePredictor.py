@@ -80,7 +80,10 @@ def logError(error):
    import json
    import time
    currentTime = time.strftime("%Z - %d/%m/%Y, %H:%M:%S", time.localtime(time.time()))
-   errorLogs = json.loads(open("errorLogs.json").read())
+   try:
+      errorLogs = json.loads(open("errorLogs.json").read())
+   except:
+      errorLogs = []
    errorLogs.append({"time": currentTime, "error": error})
    with open("errorLogs.json", "w") as errorLogFile:
       errorLogFile.write(json.dumps(errorLogs))
@@ -166,7 +169,7 @@ def saveCoinScores(coinScores):
    with open("historicalCoinScores.json", "w") as coinScoresFile:
       coinScoresFile.write(json.dumps(oldCoinScores))
    for coin in sorted(coinScores[1].items(), key=lambda x: x[1]):
-      print(coin + " " + str(coinScores[1][coin]))
+      print(coin[0] + " " + str(coin[1]))
       
    
 import time
