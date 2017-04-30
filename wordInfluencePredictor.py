@@ -68,11 +68,12 @@ def generateAndRemoveDuplicateBigrams(coinPosts):
    
 def getDelayTime():
    import time
-   secondsPerDay = 60*60*24
+   day = 60*60*24
    currentTime = time.time()
-   secondsSinceMidnight = currentTime % secondsPerDay
-   secondsUntilMidnight = secondsPerDay - secondsSinceMidnight
-   return 0#secondsUntilMidnight
+   if currentTime % day <= 60*60:
+     return 60 * 60 - (currentTime % day)
+   else:
+     return day - (currentTime % day) + 60*60
    
    
 def logError(error):
@@ -81,7 +82,7 @@ def logError(error):
    currentTime = time.strftime("%Z - %d/%m/%Y, %H:%M:%S", time.localtime(time.time()))
    errorLogs = json.loads(open("errorLogs.json").read())
    errorLogs.append({"time": currentTime, "error": error})
-   with open("errorLogs.json", "w+") as errorLogFile:
+   with open("errorLogs.json", "w") as errorLogFile:
       errorLogFile.write(json.dumps(errorLogs))
 ########################################
 
