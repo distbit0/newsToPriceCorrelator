@@ -198,5 +198,8 @@ while True:
          break
       except:
          print("Exception occured: \n\n" + traceback.format_exc())
-         logError(traceback.format_exc())
+         try:
+            logError(traceback.format_exc())
+         except:
+            pass
          continue
