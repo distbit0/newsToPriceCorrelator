@@ -1,6 +1,3 @@
-period = 1 * 86400
-
-
 ##########Utility Functions#############
 def removeText(text, term="https?://[^\s]+"):
    import re
@@ -18,20 +15,21 @@ def chunks(listToCut, maxLength):
       yield listToCut[i:i+maxLength]
 
 
-def initTwitterApi():
+def initTwitterApi(config):
    import tweepy
-   twitterKeys = open("twitterKeysMiner.txt").read().strip().split()
+   twitterKeys = config["twitterKeysPredictor"]
    auth = tweepy.OAuthHandler(twitterKeys[0], twitterKeys[1])
    auth.set_access_token(twitterKeys[2], twitterKeys[3])
    return tweepy.API(auth, wait_on_rate_limit_notify=True, wait_on_rate_limit=True)
 
 
-def getTwitterPosts(coinNames, period):
+def getTwitterPosts(coinNames, config):
    import tweepy
    import time
    from datetime import datetime
    import string
    tweets = {}
+   period = config["period"]
    
    coinNames = [key for key in coinNames.keys()]
    api = initTwitterApi()
@@ -66,16 +64,13 @@ def generateAndRemoveDuplicateBigrams(coinPosts):
    return bigrams
    
    
-def getDelayTime():
-   import time
-   day = 60*60*24
-   currentTime = time.time()
-   if currentTime % day <= 60*60:
-     return 60 * 60 - (currentTime % day)
-   else:
-     return day - (currentTime % day) + 60*60
-   
-   
+def getDelayTime(config, delay):
+  import time
+  period = config["period"]
+  currentTime = time.time() - delay
+  return period - (currentTime % period)
+
+
 def logError(error):
    import json
    import time
@@ -90,22 +85,28 @@ def logError(error):
 ########################################
 
 
-def getCoinNames():
+def getConfig():
+   import json
+   config = json.loads(open("config.json").read())
+   return config
+   
+   
+def getCoinNames(config):
    from poloniex import Poloniex
    polo = Poloniex()
    coinMarketList = [market[market.index("_") + 1:] for market in polo.return24hVolume().keys() if "BTC_" in market]
    coinList = polo.returnCurrencies()
    coinNames = {}
-   ignoredCoins = ["burst", "clams", "counterparty", "expanse", "dash", "horizon", "magi", "nem", "nexium", "nxt", "omni", "radium", "ripple", "shadow", "stellar", "tether"]
+   ignoredCoins = config["ignoredCoins"]
    for coin in coinList:
       if not coinList[coin]["name"].lower() in ignoredCoins and coin in coinMarketList:
          coinNames[coinList[coin]["name"].lower()] = "BTC_" + coin.upper()
    return coinNames
 
 
-def amalgamatePosts(coinNames, period):
+def amalgamatePosts(coinNames, config):
    posts = {}
-   posts.update(getTwitterPosts(coinNames, period))
+   posts.update(getTwitterPosts(coinNames, config))
    return posts
 
 
@@ -169,7 +170,7 @@ def saveCoinScores(coinScores):
    with open("historicalCoinScores.json", "w") as coinScoresFile:
       coinScoresFile.write(json.dumps(oldCoinScores))
    for coin in sorted(coinScores[1].items(), key=lambda x: x[1]):
-      print("Average word score: " + str(coinScores[0]))s
+      print("Average word score: " + str(coinScores[0]))
       print(coin[0] + " " + str(coin[1]))
       
    
@@ -177,11 +178,12 @@ import time
 import sys
 import traceback
 while True:
-   time.sleep(getDelayTime())
+   time.sleep(getDelayTime(config, 1800))
+   config = getConfig()
    while True:
       try:
-         coinNames = getCoinNames()
-         posts = amalgamatePosts(coinNames, period)
+         coinNames = getCoinNames(config)
+         posts = amalgamatePosts(coinNames, config)
          categorizedPosts = categorizePosts(posts, coinNames)
          wordFrequencies = getWordFrequency(categorizedPosts)
          coinScores = getCoinScores(wordFrequencies)
