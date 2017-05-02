@@ -1,0 +1,33 @@
+{  
+   "period":86400,
+   "ignoredCoins":[  
+      "burst",
+      "clams",
+      "counterparty",
+      "expanse",
+      "dash",
+      "horizon",
+      "magi",
+      "nem",
+      "nexium",
+      "nxt",
+      "omni",
+      "radium",
+      "ripple",
+      "shadow",
+      "stellar",
+      "tether"
+   ],
+   "twitterKeysPredictor":[  
+      "DPlfTbOxG4JQnCwzToA1ziZed",
+      "8iCheezbWrRUiFCRLGI3qtUMLVjhG20xuYupn5owiHMphBME4y",
+      "3685943952-xBCdIgxHZ5SzkvWfaWfcAvSFJILSAarrZamWReV",
+      "QfULhyv1bmdb3B3zEz9Sg5tldChKbdRla9eMBEIPu2epx"
+   ],
+   "twitterKeysMiner":[  
+      "T74a0af9mAqqDoamUBohzfDQ1",
+      "lVqWMo8JTuQphC3jWmjLleQWYE2jK5gpuZHi95GNJBhcvxpCgq",
+      "3685943952-XHCAWnYVcfadq3DVxWGSmzlFKI8vpZN49LdqtZc",
+      "JThRHK4lpcnw3uEXV5ESeq0Jn4joWmrJLPxnx0YIwo52b"
+   ]
+}
