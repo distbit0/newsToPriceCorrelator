@@ -161,8 +161,7 @@ def getWordsInfluence(coinPriceChanges, wordFrequencies):
       for word in wordFrequencies[coin].keys():
          if not word in wordInfluences.keys():
             wordInfluences[word] = [0, 0]
-         incrementCount = wordInfluences[word][1]
-         totalInfluence = wordInfluences[word][0]
+         totalInfluence, incrementCount = wordInfluences[word]
          wordInfluence = wordFrequencies[coin][word] * coinPriceChange
          wordInfluences[word] = [totalInfluence + wordInfluence, incrementCount + 1]
    return wordInfluences
