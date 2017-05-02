@@ -169,6 +169,7 @@ def saveCoinScores(coinScores):
    with open("historicalCoinScores.json", "w") as coinScoresFile:
       coinScoresFile.write(json.dumps(oldCoinScores))
    for coin in sorted(coinScores[1].items(), key=lambda x: x[1]):
+      print("Average word score: " + str(coinScores[0]))s
       print(coin[0] + " " + str(coin[1]))
       
    
