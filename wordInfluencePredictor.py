@@ -180,10 +180,11 @@ def saveCoinScores(avgWordSCore, coinScores):
 import time
 import sys
 import traceback
+config = getConfig()
 while True:
    time.sleep(getDelayTime(config, 1800))
-   config = getConfig()
    while True:
+      config = getConfig()
       try:
          coinNames = getCoinNames(config)
          posts = amalgamatePosts(coinNames, config)
