@@ -1,6 +1,3 @@
-period = 1 * 86400
-
-
 ##########Utility Functions#############
 def removeText(text, term="https?://[^\s]+"):
    import re
@@ -18,27 +15,28 @@ def chunks(listToCut, maxLength):
       yield listToCut[i:i+maxLength]
 
 
-def initTwitterApi():
+def initTwitterApi(config):
    import tweepy
-   twitterKeys = open("twitterKeysMiner.txt").read().strip().split()
+   twitterKeys = config["twitterKeysPredictor"]
    auth = tweepy.OAuthHandler(twitterKeys[0], twitterKeys[1])
    auth.set_access_token(twitterKeys[2], twitterKeys[3])
    return tweepy.API(auth, wait_on_rate_limit_notify=True, wait_on_rate_limit=True)
 
 
-def getTwitterPosts(coinNames, period):
+def getTwitterPosts(coinNames, config):
    import tweepy
    import time
    from datetime import datetime
    import string
    tweets = {}
+   period = config["period"]
    
    coinNames = [key for key in coinNames.keys()]
    api = initTwitterApi()
    sinceDate = datetime.fromtimestamp(time.time() - period * 2).strftime('%Y-%m-%d')
    untilDate = datetime.fromtimestamp(time.time() - period).strftime('%Y-%m-%d')
    for chunk in chunks(coinNames, 10):
-      for tweet in tweepy.Cursor(api.search, q=" OR ".join(chunk), tweet_mode="extended", since=sinceDate, until=untilDate, lang="en").items(1000):
+      for tweet in tweepy.Cursor(api.search, q=" OR ".join(chunk), tweet_mode="extended", until=untilDate since=sinceDate, lang="en").items(1000):
          tweetText = removeText(tweet._json["full_text"]).lower().strip()
          translator = str.maketrans('', '', string.punctuation)
          tweetText = tweetText.translate(translator)
@@ -67,15 +65,13 @@ def generateAndRemoveDuplicateBigrams(coinPosts):
    return bigrams
    
    
-def getDelayTime():
-   import time
-   secondsPerDay = 60*60*24
-   currentTime = time.time()
-   secondsSinceMidnight = currentTime % secondsPerDay
-   secondsUntilMidnight = secondsPerDay - secondsSinceMidnight
-   return secondsUntilMidnight
-   
-   
+def getDelayTime(config, delay):
+  import time
+  period = config["period"]
+  currentTime = time.time() - delay
+  return period - (currentTime % period)
+
+
 def logError(error):
    import json
    import time
@@ -90,22 +86,28 @@ def logError(error):
 ########################################
 
 
-def getCoinNames():
+def getConfig():
+   import json
+   config = json.loads(open("config.json").read())
+   return config
+   
+   
+def getCoinNames(config):
    from poloniex import Poloniex
    polo = Poloniex()
    coinMarketList = [market[market.index("_") + 1:] for market in polo.return24hVolume().keys() if "BTC_" in market]
    coinList = polo.returnCurrencies()
    coinNames = {}
-   ignoredCoins = ["burst", "clams", "counterparty", "expanse", "dash", "horizon", "magi", "nem", "nexium", "nxt", "omni", "radium", "ripple", "shadow", "stellar", "tether"]
+   ignoredCoins = config["ignoredCoins"]
    for coin in coinList:
       if not coinList[coin]["name"].lower() in ignoredCoins and coin in coinMarketList:
          coinNames[coinList[coin]["name"].lower()] = "BTC_" + coin.upper()
    return coinNames
 
 
-def amalgamatePosts(coinNames, period):
+def amalgamatePosts(coinNames, config):
    posts = {}
-   posts.update(getTwitterPosts(coinNames, period))
+   posts.update(getTwitterPosts(coinNames, config))
    return posts
 
 
@@ -140,11 +142,12 @@ def getWordFrequency(categorizedPosts):
    return wordFrequencies
 
 
-def getPriceMovement(coinNames, period):
+def getPriceMovement(coinNames, config):
    import time
    from poloniex import Poloniex
    polo = Poloniex()
    coinPriceChanges = {}
+   period = config["period"]
    for coin in coinNames:
       startTime = time.time() - period
       coinWtdAvg = float(polo.returnChartData(coinNames[coin], start=startTime)[0]["weightedAverage"])
@@ -184,14 +187,15 @@ import time
 import sys
 import traceback
 while True:
-   time.sleep(getDelayTime())
+   time.sleep(getDelayTime(config))
+   config = getConfig()
    while True:
       try:
-         coinNames = getCoinNames()
-         posts = amalgamatePosts(coinNames, period)
+         coinNames = getCoinNames(config)
+         posts = amalgamatePosts(coinNames, config)
          categorizedPosts = categorizePosts(posts, coinNames)
          wordFrequencies = getWordFrequency(categorizedPosts)
-         coinPriceChanges = getPriceMovement(coinNames, period)
+         coinPriceChanges = getPriceMovement(coinNames, config)
          wordInfluences = getWordsInfluence(coinPriceChanges, wordFrequencies)
          updateFile(wordInfluences)
          break
