@@ -165,7 +165,10 @@ def saveCoinScores(avgWordSCore, coinScores):
    import time
    timeUnix = time.time()
    currentTime = time.strftime("%Z - %d/%m/%Y, %H:%M:%S", time.localtime(time.time()))
-   oldCoinScores = json.loads(open("historicalCoinScores.json").read())
+   try:
+      oldCoinScores = json.loads(open("historicalCoinScores.json").read())
+   except:
+      oldCoinScores = []
    oldCoinScores.append({"time": [timeUnix, currentTime], "avgWordScore": avgWordSCore, "coinScores": coinScores})
    with open("historicalCoinScores.json", "w") as coinScoresFile:
       coinScoresFile.write(json.dumps(oldCoinScores))
