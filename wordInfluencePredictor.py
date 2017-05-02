@@ -160,17 +160,17 @@ def getCoinScores(wordFrequencies):
    return [avgWordScore, coinScores]
    
    
-def saveCoinScores(coinScores):
+def saveCoinScores(avgWordSCore, coinScores):
    import json
    import time
    timeUnix = time.time()
    currentTime = time.strftime("%Z - %d/%m/%Y, %H:%M:%S", time.localtime(time.time()))
    oldCoinScores = json.loads(open("historicalCoinScores.json").read())
-   oldCoinScores.append({"time": [timeUnix, currentTime], "avgWordScore": coinScores[0], "coinScores": coinScores[1]})
+   oldCoinScores.append({"time": [timeUnix, currentTime], "avgWordScore": avgWordSCore, "coinScores": coinScores})
    with open("historicalCoinScores.json", "w") as coinScoresFile:
       coinScoresFile.write(json.dumps(oldCoinScores))
-   for coin in sorted(coinScores[1].items(), key=lambda x: x[1]):
-      print("Average word score: " + str(coinScores[0]))
+   for coin in sorted(coinScores.items(), key=lambda x: x[1]):
+      print("Average word score: " + str(avgWordSCore))
       print(coin[0] + " " + str(coin[1]))
       
    
@@ -186,8 +186,8 @@ while True:
          posts = amalgamatePosts(coinNames, config)
          categorizedPosts = categorizePosts(posts, coinNames)
          wordFrequencies = getWordFrequency(categorizedPosts)
-         coinScores = getCoinScores(wordFrequencies)
-         saveCoinScores(coinScores)    
+         avgWordSCore, coinScores = getCoinScores(wordFrequencies)
+         saveCoinScores(avgWordSCore, coinScores)    
          break
       except:
          print("Exception occured: \n\n" + traceback.format_exc())
