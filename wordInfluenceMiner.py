@@ -172,7 +172,10 @@ def getWordsInfluence(coinPriceChanges, wordFrequencies):
 
 def updateFile(wordInfluences):
    import json
-   wordInfluencesFile = json.loads(open("wordInfluences.json").read())
+   try:
+      wordInfluencesFile = json.loads(open("wordInfluences.json").read())
+   except:
+      wordInfluencesFile = {}
    for word in wordInfluences:
       if not word in wordInfluencesFile:
          wordInfluencesFile[word] = [0, 0]
