@@ -36,7 +36,7 @@ def getTwitterPosts(coinNames, config):
    sinceDate = datetime.fromtimestamp(time.time() - period * 2).strftime('%Y-%m-%d')
    untilDate = datetime.fromtimestamp(time.time() - period).strftime('%Y-%m-%d')
    for chunk in chunks(coinNames, 10):
-      for tweet in tweepy.Cursor(api.search, q=" OR ".join(chunk), tweet_mode="extended", until=untilDate since=sinceDate, lang="en").items(1000):
+      for tweet in tweepy.Cursor(api.search, q=" OR ".join(chunk), tweet_mode="extended", until=untilDate, since=sinceDate, lang="en").items(1000):
          tweetText = removeText(tweet._json["full_text"]).lower().strip()
          translator = str.maketrans('', '', string.punctuation)
          tweetText = tweetText.translate(translator)
@@ -189,10 +189,11 @@ def updateFile(wordInfluences):
 import time
 import sys
 import traceback
+config = getConfig()
 while True:
-   time.sleep(getDelayTime(config))
-   config = getConfig()
+   time.sleep(getDelayTime(config, 0))
    while True:
+      config = getConfig()
       try:
          coinNames = getCoinNames(config)
          posts = amalgamatePosts(coinNames, config)
