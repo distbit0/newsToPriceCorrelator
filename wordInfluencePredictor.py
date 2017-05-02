@@ -145,7 +145,10 @@ def getCoinScores(wordFrequencies):
    import json
    coinScores = {}
    wordInfluences = json.loads(open("wordInfluences.json").read())
-   avgWordScore = sum([value[0] / value[1] for value in wordInfluences.values()]) / float(len(wordInfluences))
+   if len(wordInfluences) != 0:
+      avgWordScore = sum([value[0] / value[1] for value in wordInfluences.values()]) / float(len(wordInfluences))
+   else:
+      avgWordScore = 0
    
    for coin in wordFrequencies:
       coinScore = 0
