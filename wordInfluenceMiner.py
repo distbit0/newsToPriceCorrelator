@@ -46,8 +46,9 @@ def getTwitterPosts(coinNames, config):
          tweetText = "".join([item for item in list(tweetText) if item not in list(string.punctuation)])
          tweets[tweetText] = tweet._json["user"]["id"]
    return tweets
-   
-   
+
+
+
 def removeDuplicateWords(coinPosts):
    import itertools
    allCoinWords = []
@@ -57,8 +58,9 @@ def removeDuplicateWords(coinPosts):
          userWords.extend(post.split(" "))
       allCoinWords.extend(list(set(userWords)))
    return allCoinWords
-   
-   
+
+
+
 def generateAndRemoveDuplicateBigrams(coinPosts):
    bigrams = []
    for user in coinPosts:
@@ -67,13 +69,14 @@ def generateAndRemoveDuplicateBigrams(coinPosts):
          userBigrams.extend([b[0] + " " + b[1] for b in zip(post.split(" ")[:-1], post.split(" ")[1:])])
       bigrams.extend(list(set(userBigrams)))
    return bigrams
-   
-   
+
+
+
 def getDelayTime(config, delay):
-  import time
-  period = config["period"]
-  currentTime = time.time() - delay
-  return period - (currentTime % period)
+   import time
+   period = config["period"]
+   currentTime = time.time() - delay
+   return period - (currentTime % period)
 
 
 def logError(error):
@@ -93,8 +96,8 @@ def getConfig():
    import json
    config = json.loads(open("config.json").read())
    return config
-   
-   
+
+
 def getCoinNames(config):
    from poloniex import Poloniex
    polo = Poloniex()
@@ -186,8 +189,8 @@ def updateFile(wordInfluences):
       wordInfluencesFile[word] = [totalInfluence + wordInfluences[word][0], incrementCount + wordInfluences[word][1]]
    with open("wordInfluences.json", "w") as wordInfluencesFileObj:
       wordInfluencesFileObj.write(json.dumps(wordInfluencesFile, indent=2))
-   
-   
+
+
 import time
 import sys
 import traceback
@@ -212,7 +215,8 @@ while True:
          except:
             pass
          time.sleep(300)
-         
+
+
 #Debugging
 """coinNames = getCoinNames(config)
 posts = amalgamatePosts(coinNames, config)
