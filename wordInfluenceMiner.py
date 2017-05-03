@@ -1,6 +1,3 @@
-#!/usr/bin/python3
-
-
 ##########Utility Functions#############
 def removeText(text, term="https?://[^\s]+"):
    import re
@@ -12,7 +9,7 @@ def removeText(text, term="https?://[^\s]+"):
       else: break
    return text
   
-   
+  
 def chunks(listToCut, maxLength):
    chunkList = []
    for i in range(0, len(listToCut), maxLength):
@@ -22,7 +19,7 @@ def chunks(listToCut, maxLength):
 
 def initTwitterApi(config):
    import tweepy
-   twitterKeys = config["twitterKeysPredictor"]
+   twitterKeys = config["twitterKeysMiner"]
    auth = tweepy.OAuthHandler(twitterKeys[0], twitterKeys[1])
    auth.set_access_token(twitterKeys[2], twitterKeys[3])
    return tweepy.API(auth, wait_on_rate_limit_notify=True, wait_on_rate_limit=True)
@@ -37,7 +34,7 @@ def getTwitterPosts(coinNames, config):
    period = config["period"]
    
    coinNames = [key for key in coinNames.keys()]
-   api = initTwitterApi()
+   api = initTwitterApi(config)
    sinceDate = datetime.fromtimestamp(time.time() - period * 2).strftime('%Y-%m-%d')
    untilDate = datetime.fromtimestamp(time.time() - period).strftime('%Y-%m-%d')
    for chunk in chunks(coinNames, 10):
@@ -87,7 +84,7 @@ def logError(error):
       errorLogs = []
    errorLogs.append({"time": currentTime, "error": error})
    with open("errorLogs.json", "w") as errorLogFile:
-      errorLogFile.write(json.dumps(errorLogs))
+      errorLogFile.write(json.dumps(errorLogs, indent=2))
 ########################################
 
 
@@ -214,4 +211,15 @@ while True:
             logError(traceback.format_exc())
          except:
             pass
-         continue
+         time.sleep(300)
+         
+#Debugging
+"""coinNames = getCoinNames(config)
+posts = amalgamatePosts(coinNames, config)
+categorizedPosts = categorizePosts(posts, coinNames)
+wordFrequencies = getWordFrequency(categorizedPosts)
+coinPriceChanges = getPriceMovement(coinNames, config)
+wordInfluences = getWordsInfluence(coinPriceChanges, wordFrequencies)
+updateFile(wordInfluences)"""
+
+#Made by Alex Pimania 2017 
