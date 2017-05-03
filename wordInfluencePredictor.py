@@ -1,6 +1,3 @@
-#!/usr/bin/python3
-
-
 ##########Utility Functions#############
 def removeText(text, term="https?://[^\s]+"):
    import re
@@ -37,7 +34,7 @@ def getTwitterPosts(coinNames, config):
    period = config["period"]
    
    coinNames = [key for key in coinNames.keys()]
-   api = initTwitterApi()
+   api = initTwitterApi(config)
    sinceDate = datetime.fromtimestamp(time.time() - period).strftime('%Y-%m-%d')
    for chunk in chunks(coinNames, 10):
       for tweet in tweepy.Cursor(api.search, q=" OR ".join(chunk), tweet_mode="extended", since=sinceDate, lang="en").items(1000):
@@ -86,7 +83,7 @@ def logError(error):
       errorLogs = []
    errorLogs.append({"time": currentTime, "error": error})
    with open("errorLogs.json", "w") as errorLogFile:
-      errorLogFile.write(json.dumps(errorLogs))
+      errorLogFile.write(json.dumps(errorLogs, indent=2))
 ########################################
 
 
@@ -149,7 +146,10 @@ def getWordFrequency(categorizedPosts):
 def getCoinScores(wordFrequencies):
    import json
    coinScores = {}
-   wordInfluences = json.loads(open("wordInfluences.json").read())
+   try:
+      wordInfluences = json.loads(open("wordInfluences.json").read())
+   except:
+      wordInfluences = {}
    if len(wordInfluences) != 0:
       avgWordScore = sum([value[0] / value[1] for value in wordInfluences.values()]) / float(len(wordInfluences))
    else:
@@ -163,8 +163,7 @@ def getCoinScores(wordFrequencies):
             coinScore += (wordInfluences[word][0] / wordInfluences[word][1]) * wordFrequencies[coin][word]
             validWords += wordFrequencies[coin][word]
       if validWords != 0:
-         coinScore = coinScore/validWords
-         coinScores[coin] = coinScore
+         coinScores[coin] = coinScore/validWords
    return [avgWordScore, coinScores]
    
    
@@ -179,9 +178,9 @@ def saveCoinScores(avgWordSCore, coinScores):
       oldCoinScores = []
    oldCoinScores.append({"time": [timeUnix, currentTime], "avgWordScore": avgWordSCore, "coinScores": coinScores})
    with open("historicalCoinScores.json", "w") as coinScoresFile:
-      coinScoresFile.write(json.dumps(oldCoinScores))
+      coinScoresFile.write(json.dumps(oldCoinScores, indent=2))
+   print("Average word score: " + str(avgWordSCore))
    for coin in sorted(coinScores.items(), key=lambda x: x[1]):
-      print("Average word score: " + str(avgWordSCore))
       print(coin[0] + " " + str(coin[1]))
       
    
@@ -207,4 +206,12 @@ while True:
             logError(traceback.format_exc())
          except:
             pass
-         continue
+         time.sleep(300)
+         
+#Debugging:
+"""coinNames = getCoinNames(config)
+posts = amalgamatePosts(coinNames, config)
+categorizedPosts = categorizePosts(posts, coinNames)
+wordFrequencies = getWordFrequency(categorizedPosts)
+avgWordSCore, coinScores = getCoinScores(wordFrequencies)
+saveCoinScores(avgWordSCore, coinScores)"""
