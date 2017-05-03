@@ -1,3 +1,6 @@
+#!/usr/bin/python3
+
+
 ##########Utility Functions#############
 def removeText(text, term="https?://[^\s]+"):
    import re
