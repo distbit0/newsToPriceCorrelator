@@ -12,10 +12,12 @@ def removeText(text, term="https?://[^\s]+"):
       else: break
    return text
   
-  
+   
 def chunks(listToCut, maxLength):
+   chunkList = []
    for i in range(0, len(listToCut), maxLength):
-      yield listToCut[i:i+maxLength]
+      chunkList.append(listToCut[i:i+maxLength])
+   return chunkList
 
 
 def initTwitterApi(config):
