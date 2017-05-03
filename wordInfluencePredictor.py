@@ -45,8 +45,8 @@ def getTwitterPosts(coinNames, config):
          "".join([item for item in list(tweetText) if item not in list(string.punctuation)])
          tweets[tweetText] = tweet._json["user"]["id"]
    return tweets
-   
-   
+
+
 def removeDuplicateWords(coinPosts):
    import itertools
    allCoinWords = []
@@ -56,8 +56,8 @@ def removeDuplicateWords(coinPosts):
          userWords.extend(post.split(" "))
       allCoinWords.extend(list(set(userWords)))
    return allCoinWords
-   
-   
+
+
 def generateAndRemoveDuplicateBigrams(coinPosts):
    bigrams = []
    for user in coinPosts:
@@ -66,13 +66,13 @@ def generateAndRemoveDuplicateBigrams(coinPosts):
          userBigrams.extend([b[0] + " " + b[1] for b in zip(post.split(" ")[:-1], post.split(" ")[1:])])
       bigrams.extend(list(set(userBigrams)))
    return bigrams
-   
-   
+
+
 def getDelayTime(config, delay):
-  import time
-  period = config["period"]
-  currentTime = time.time() - delay
-  return period - (currentTime % period)
+   import time
+   period = config["period"]
+   currentTime = time.time() - delay
+   return period - (currentTime % period)
 
 
 def logError(error):
@@ -142,8 +142,8 @@ def getWordFrequency(categorizedPosts):
          wordCountRatio = (word[1] / totalWordCount) * 100
          wordFrequencies[coin][word[0]] = wordCountRatio
    return wordFrequencies
-   
-   
+
+
 def getCoinScores(wordFrequencies):
    import json
    coinScores = {}
@@ -165,8 +165,8 @@ def getCoinScores(wordFrequencies):
       if validWords != 0:
          coinScores[coin] = coinScore/validWords
    return [avgWordScore, coinScores]
-   
-   
+
+
 def saveCoinScores(avgWordSCore, coinScores):
    import json
    import time
@@ -181,8 +181,8 @@ def saveCoinScores(avgWordSCore, coinScores):
    print("Average word score: " + str(avgWordSCore))
    for coin in sorted(coinScores.items(), key=lambda x: x[1]):
       print(coin[0] + " " + str(coin[1]))
-      
-   
+
+
 import time
 import sys
 import traceback
@@ -205,7 +205,8 @@ while True:
             logError(traceback.format_exc())
          except: pass
          time.sleep(300)
-         
+
+
 #Debugging:
 """coinNames = getCoinNames(config)
 posts = amalgamatePosts(coinNames, config)
