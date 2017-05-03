@@ -48,7 +48,6 @@ def getTwitterPosts(coinNames, config):
 
 
 def removeDuplicateWords(coinPosts):
-   import itertools
    allCoinWords = []
    for user in coinPosts:
       userWords = []
