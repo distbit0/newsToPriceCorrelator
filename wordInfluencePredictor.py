@@ -81,8 +81,7 @@ def logError(error):
    currentTime = time.strftime("%Z - %d/%m/%Y, %H:%M:%S", time.localtime(time.time()))
    try:
       errorLogs = json.loads(open("errorLogs.json").read())
-   except:
-      errorLogs = []
+   except: errorLogs = []
    errorLogs.append({"time": currentTime, "error": error})
    with open("errorLogs.json", "w") as errorLogFile:
       errorLogFile.write(json.dumps(errorLogs, indent=2))
@@ -150,8 +149,7 @@ def getCoinScores(wordFrequencies):
    coinScores = {}
    try:
       wordInfluences = json.loads(open("wordInfluences.json").read())
-   except:
-      wordInfluences = {}
+   except: wordInfluences = {}
    if len(wordInfluences) != 0:
       avgWordScore = sum([value[0] / value[1] for value in wordInfluences.values()]) / float(len(wordInfluences))
    else:
@@ -176,8 +174,7 @@ def saveCoinScores(avgWordSCore, coinScores):
    currentTime = time.strftime("%Z - %d/%m/%Y, %H:%M:%S", time.localtime(time.time()))
    try:
       oldCoinScores = json.loads(open("historicalCoinScores.json").read())
-   except:
-      oldCoinScores = []
+   except: oldCoinScores = []
    oldCoinScores.append({"time": [timeUnix, currentTime], "avgWordScore": avgWordSCore, "coinScores": coinScores})
    with open("historicalCoinScores.json", "w") as coinScoresFile:
       coinScoresFile.write(json.dumps(oldCoinScores, indent=2))
@@ -206,8 +203,7 @@ while True:
          print("Exception occured: \n\n" + traceback.format_exc())
          try:
             logError(traceback.format_exc())
-         except:
-            pass
+         except: pass
          time.sleep(300)
          
 #Debugging:
@@ -217,3 +213,6 @@ categorizedPosts = categorizePosts(posts, coinNames)
 wordFrequencies = getWordFrequency(categorizedPosts)
 avgWordSCore, coinScores = getCoinScores(wordFrequencies)
 saveCoinScores(avgWordSCore, coinScores)"""
+
+
+#Made by Alexpimania 2017
