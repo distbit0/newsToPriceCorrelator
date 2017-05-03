@@ -50,7 +50,6 @@ def getTwitterPosts(coinNames, config):
 
 
 def removeDuplicateWords(coinPosts):
-   import itertools
    allCoinWords = []
    for user in coinPosts:
       userWords = []
@@ -212,8 +211,7 @@ while True:
          print("Exception occured: \n\n" + traceback.format_exc())
          try:
             logError(traceback.format_exc())
-         except:
-            pass
+         except: pass
          time.sleep(300)
 
 
@@ -227,4 +225,4 @@ wordInfluences = getWordsInfluence(coinPriceChanges, wordFrequencies)
 updateFile(wordInfluences)"""
 
 
-#Made by Alexpimania 2017 
+#Made by Alexpimania 2017
