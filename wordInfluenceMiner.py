@@ -82,8 +82,7 @@ def logError(error):
    currentTime = time.strftime("%Z - %d/%m/%Y, %H:%M:%S", time.localtime(time.time()))
    try:
       errorLogs = json.loads(open("errorLogs.json").read())
-   except:
-      errorLogs = []
+   except: errorLogs = []
    errorLogs.append({"time": currentTime, "error": error})
    with open("errorLogs.json", "w") as errorLogFile:
       errorLogFile.write(json.dumps(errorLogs, indent=2))
@@ -178,8 +177,7 @@ def updateFile(wordInfluences):
    import json
    try:
       wordInfluencesFile = json.loads(open("wordInfluences.json").read())
-   except:
-      wordInfluencesFile = {}
+   except: wordInfluencesFile = {}
    for word in wordInfluences:
       if not word in wordInfluencesFile:
          wordInfluencesFile[word] = [0, 0]
@@ -224,4 +222,5 @@ coinPriceChanges = getPriceMovement(coinNames, config)
 wordInfluences = getWordsInfluence(coinPriceChanges, wordFrequencies)
 updateFile(wordInfluences)"""
 
-#Made by Alex Pimania 2017 
+
+#Made by Alexpimania 2017 
