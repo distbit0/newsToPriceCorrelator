@@ -43,8 +43,7 @@ def getTwitterPosts(coinNames, config):
    for chunk in chunks(coinNames, 10):
       for tweet in tweepy.Cursor(api.search, q=" OR ".join(chunk), tweet_mode="extended", until=untilDate, since=sinceDate, lang="en").items(1000):
          tweetText = removeText(tweet._json["full_text"]).lower().strip()
-         translator = str.maketrans('', '', string.punctuation)
-         tweetText = tweetText.translate(translator)
+         tweetText = "".join([item for item in list(tweetText) if item not in list(string.punctuation)])
          tweets[tweetText] = tweet._json["user"]["id"]
    return tweets
    
