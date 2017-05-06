@@ -48,7 +48,6 @@ def getTwitterPosts(coinNames, config):
    return tweets
 
 
-
 def removeDuplicateWords(coinPosts):
    allCoinWords = []
    for user in coinPosts:
@@ -59,7 +58,6 @@ def removeDuplicateWords(coinPosts):
    return allCoinWords
 
 
-
 def generateAndRemoveDuplicateBigrams(coinPosts):
    bigrams = []
    for user in coinPosts:
@@ -68,7 +66,6 @@ def generateAndRemoveDuplicateBigrams(coinPosts):
          userBigrams.extend([b[0] + " " + b[1] for b in zip(post.split(" ")[:-1], post.split(" ")[1:])])
       bigrams.extend(list(set(userBigrams)))
    return bigrams
-
 
 
 def getDelayTime(config, delay):
