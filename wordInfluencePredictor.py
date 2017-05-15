@@ -20,7 +20,8 @@ def chunks(listToCut, maxLength):
    return chunkList
 
 
-def initTwitterApi(config):
+def initTwitterApi():
+   config = getConfig()
    import tweepy
    twitterKeys = config["twitterKeysPredictor"]
    auth = tweepy.OAuthHandler(twitterKeys[0], twitterKeys[1])
@@ -28,16 +29,17 @@ def initTwitterApi(config):
    return tweepy.API(auth, wait_on_rate_limit_notify=True, wait_on_rate_limit=True)
 
 
-def getTwitterPosts(coinNames, config):
+def getTwitterPosts():
    import tweepy
    import time
    from datetime import datetime
    import string
    tweets = {}
-   period = config["period"]
    
-   coinNames = [key for key in coinNames.keys()]
-   api = initTwitterApi(config)
+   config = getConfig()
+   period = config["period"]
+   coinNames = list(getCoinNames())
+   api = initTwitterApi()
    sinceDate = datetime.fromtimestamp(time.time() - period).strftime('%Y-%m-%d')
    for chunk in chunks(coinNames, 10):
       for tweet in tweepy.Cursor(api.search, q=" OR ".join(chunk), tweet_mode="extended", since=sinceDate, lang="en").items(1000):
@@ -67,11 +69,12 @@ def generateAndRemoveDuplicateBigrams(coinPosts):
    return bigrams
 
 
-def getDelayTime(config, delay):
+def sleepForPeriod(delay=0):
    import time
+   config = getConfig()
    period = config["period"]
    currentTime = time.time() - delay
-   return period - (currentTime % period)
+   time.sleep(period - (currentTime % period))
 
 
 def logError(error):
@@ -104,11 +107,12 @@ def getConfig():
    import json
    config = json.loads(open("config.json").read())
    return config
-   
-   
-def getCoinNames(config):
+
+
+def getCoinNames():
    from poloniex import Poloniex
    polo = Poloniex()
+   config = getConfig()
    coinMarketList = [market[market.index("_") + 1:] for market in polo.return24hVolume().keys() if "BTC_" in market]
    coinList = polo.returnCurrencies()
    coinNames = {}
@@ -119,14 +123,18 @@ def getCoinNames(config):
    return coinNames
 
 
-def amalgamatePosts(coinNames, config):
+def amalgamatePosts():
    posts = {}
-   posts.update(getTwitterPosts(coinNames, config))
+   coinNames = getCoinNames()
+   config = getConfig()
+   posts.update(getTwitterPosts())
    return posts
 
 
-def categorizePosts(posts, coinNames):
+def categorizePosts():
    import json
+   posts = amalgamatePosts()
+   coinNames = getCoinNames()
    categorizedPosts = {}
    for post in posts:
       coins = [coinName for coinName in coinNames if coinName in post]
@@ -140,9 +148,10 @@ def categorizePosts(posts, coinNames):
    return categorizedPosts
  
 
-def getWordFrequency(categorizedPosts):
+def getWordFrequencies():
    from nltk import FreqDist
    wordFrequencies = {}
+   categorizedPosts = categorizePosts()
    for coin in categorizedPosts:
       wordFrequencies[coin] = {}
       bigrams = generateAndRemoveDuplicateBigrams(categorizedPosts[coin])
@@ -156,8 +165,9 @@ def getWordFrequency(categorizedPosts):
    return wordFrequencies
 
 
-def getCoinScores(wordFrequencies):
+def getCoinScores():
    import json
+   wordFrequencies = getWordFrequencies()
    coinScores = {}
    try:
       wordInfluences = json.loads(open("wordInfluences.json").read())
@@ -176,38 +186,30 @@ def getCoinScores(wordFrequencies):
    return [avgWordScore, coinScores]
 
 
-def saveCoinScores(avgWordSCore, coinScores):
+def saveCoinScores():
    import json
    import time
    timeUnix = time.time()
+   avgWordScore, coinScores = getCoinScores()
    currentTime = time.strftime("%Z - %d/%m/%Y, %H:%M:%S", time.localtime(time.time()))
    try:
       oldCoinScores = json.loads(open("historicalCoinScores.json").read())
    except: oldCoinScores = []
-   oldCoinScores.append({"time": [timeUnix, currentTime], "avgWordScore": avgWordSCore, "coinScores": coinScores})
+   oldCoinScores.append({"time": [timeUnix, currentTime], "avgWordScore": avgWordScore, "coinScores": coinScores})
    with open("historicalCoinScores.json", "w") as coinScoresFile:
       coinScoresFile.write(json.dumps(oldCoinScores, indent=2))
-   print("Average word score: " + str(avgWordSCore))
+   print("Average word score: " + str(avgWordScore))
    for coin in sorted(coinScores.items(), key=lambda x: x[1]):
       print(coin[0] + " " + str(coin[1]))
 
 
-import time
-import sys
 import traceback
-config = getConfig()
 #"""
 while True:
-   time.sleep(getDelayTime(config, 1800))
+   sleepForPeriod(1800)
    while True:
-      config = getConfig()
       try:
-         coinNames = getCoinNames(config)
-         posts = amalgamatePosts(coinNames, config)
-         categorizedPosts = categorizePosts(posts, coinNames)
-         wordFrequencies = getWordFrequency(categorizedPosts)
-         avgWordSCore, coinScores = getCoinScores(wordFrequencies)
-         saveCoinScores(avgWordSCore, coinScores)    
+         saveCoinScores()    
          break
       except:
          print("Exception occured: \n\n" + traceback.format_exc())
@@ -219,12 +221,6 @@ while True:
 
 #Debugging:
 """
-coinNames = getCoinNames(config)
-posts = amalgamatePosts(coinNames, config)
-categorizedPosts = categorizePosts(posts, coinNames)
-wordFrequencies = getWordFrequency(categorizedPosts)
-avgWordSCore, coinScores = getCoinScores(wordFrequencies)
-saveCoinScores(avgWordSCore, coinScores)#"""
-
+saveCoinScores()#"""
 
 #Made by Alexpimania 2017
