@@ -20,7 +20,8 @@ def chunks(listToCut, maxLength):
    return chunkList
 
 
-def initTwitterApi(config):
+def initTwitterApi():
+   config = getConfig()
    import tweepy
    twitterKeys = config["twitterKeysMiner"]
    auth = tweepy.OAuthHandler(twitterKeys[0], twitterKeys[1])
@@ -28,16 +29,17 @@ def initTwitterApi(config):
    return tweepy.API(auth, wait_on_rate_limit_notify=True, wait_on_rate_limit=True)
 
 
-def getTwitterPosts(coinNames, config):
+def getTwitterPosts():
    import tweepy
    import time
    from datetime import datetime
    import string
    tweets = {}
-   period = config["period"]
    
-   coinNames = [key for key in coinNames.keys()]
-   api = initTwitterApi(config)
+   config = getConfig()
+   period = config["period"]
+   coinNames = list(getCoinNames())
+   api = initTwitterApi()
    sinceDate = datetime.fromtimestamp(time.time() - period * 2).strftime('%Y-%m-%d')
    untilDate = datetime.fromtimestamp(time.time() - period).strftime('%Y-%m-%d')
    for chunk in chunks(coinNames, 10):
@@ -46,6 +48,7 @@ def getTwitterPosts(coinNames, config):
          tweetText = "".join([item for item in list(tweetText) if item not in list(string.punctuation)])
          tweets[tweetText] = tweet._json["user"]["id"]
    return tweets
+
 
 
 def removeDuplicateWords(coinPosts):
@@ -58,6 +61,7 @@ def removeDuplicateWords(coinPosts):
    return allCoinWords
 
 
+
 def generateAndRemoveDuplicateBigrams(coinPosts):
    bigrams = []
    for user in coinPosts:
@@ -68,11 +72,13 @@ def generateAndRemoveDuplicateBigrams(coinPosts):
    return bigrams
 
 
-def getDelayTime(config, delay):
+
+def sleepForPeriod(delay=0):
    import time
+   config = getConfig()
    period = config["period"]
    currentTime = time.time() - delay
-   return period - (currentTime % period)
+   time.sleep(period - (currentTime % period))
 
 
 def logError(error):
@@ -94,9 +100,10 @@ def getConfig():
    return config
 
 
-def getCoinNames(config):
+def getCoinNames():
    from poloniex import Poloniex
    polo = Poloniex()
+   config = getConfig()
    coinMarketList = [market[market.index("_") + 1:] for market in polo.return24hVolume().keys() if "BTC_" in market]
    coinList = polo.returnCurrencies()
    coinNames = {}
@@ -107,14 +114,18 @@ def getCoinNames(config):
    return coinNames
 
 
-def amalgamatePosts(coinNames, config):
+def amalgamatePosts():
    posts = {}
-   posts.update(getTwitterPosts(coinNames, config))
+   coinNames = getCoinNames()
+   config = getConfig()
+   posts.update(getTwitterPosts())
    return posts
 
 
-def categorizePosts(posts, coinNames):
+def categorizePosts():
    import json
+   posts = amalgamatePosts()
+   coinNames = getCoinNames()
    categorizedPosts = {}
    for post in posts:
       coins = [coinName for coinName in coinNames if coinName in post]
@@ -128,9 +139,10 @@ def categorizePosts(posts, coinNames):
    return categorizedPosts
  
 
-def getWordFrequency(categorizedPosts):
+def getWordFrequencies():
    from nltk import FreqDist
    wordFrequencies = {}
+   categorizedPosts = categorizePosts()
    for coin in categorizedPosts:
       wordFrequencies[coin] = {}
       bigrams = generateAndRemoveDuplicateBigrams(categorizedPosts[coin])
@@ -144,9 +156,11 @@ def getWordFrequency(categorizedPosts):
    return wordFrequencies
 
 
-def getPriceMovement(coinNames, config):
+def getPriceMovement():
    import time
    from poloniex import Poloniex
+   coinNames = getCoinNames()
+   config = getConfig()
    polo = Poloniex()
    coinPriceChanges = {}
    period = config["period"]
@@ -159,8 +173,10 @@ def getPriceMovement(coinNames, config):
    return coinPriceChanges
 
 
-def getWordsInfluence(coinPriceChanges, wordFrequencies):
+def getWordInfluences():
    wordInfluences = {}
+   coinPriceChanges = getPriceMovement()
+   wordFrequencies = getWordFrequencies()
    for coin in wordFrequencies:
       coinPriceChange = coinPriceChanges[coin]
       for word in wordFrequencies[coin].keys():
@@ -172,8 +188,9 @@ def getWordsInfluence(coinPriceChanges, wordFrequencies):
    return wordInfluences
 
 
-def updateFile(wordInfluences):
+def updateFile():
    import json
+   wordInfluences = getWordInfluences()
    try:
       wordInfluencesFile = json.loads(open("wordInfluences.json").read())
    except: wordInfluencesFile = {}
@@ -187,39 +204,25 @@ def updateFile(wordInfluences):
       wordInfluencesFileObj.write(json.dumps(wordInfluencesFile, indent=2))
 
 
-import time
-import sys
 import traceback
-config = getConfig()
+#"""
 while True:
-   time.sleep(getDelayTime(config, 0))
+   sleepForPeriod()
    while True:
-      config = getConfig()
       try:
-         coinNames = getCoinNames(config)
-         posts = amalgamatePosts(coinNames, config)
-         categorizedPosts = categorizePosts(posts, coinNames)
-         wordFrequencies = getWordFrequency(categorizedPosts)
-         coinPriceChanges = getPriceMovement(coinNames, config)
-         wordInfluences = getWordsInfluence(coinPriceChanges, wordFrequencies)
-         updateFile(wordInfluences)
+         updateFile()
          break
       except:
          print("Exception occured: \n\n" + traceback.format_exc())
          try:
             logError(traceback.format_exc())
          except: pass
-         time.sleep(300)
+         time.sleep(300)#"""
 
 
 #Debugging
-"""coinNames = getCoinNames(config)
-posts = amalgamatePosts(coinNames, config)
-categorizedPosts = categorizePosts(posts, coinNames)
-wordFrequencies = getWordFrequency(categorizedPosts)
-coinPriceChanges = getPriceMovement(coinNames, config)
-wordInfluences = getWordsInfluence(coinPriceChanges, wordFrequencies)
-updateFile(wordInfluences)"""
+"""
+updateFile()#"""
 
 
 #Made by Alexpimania 2017
