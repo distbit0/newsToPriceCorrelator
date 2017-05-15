@@ -84,6 +84,19 @@ def logError(error):
    errorLogs.append({"time": currentTime, "error": error})
    with open("errorLogs.json", "w") as errorLogFile:
       errorLogFile.write(json.dumps(errorLogs, indent=2))
+      
+      
+def getAvgWordScore(wordInfluences, wordFrequencies):
+   totalWordFrequency = totalWordScore = 0
+   for coin in wordFrequencies:
+      for word in wordFrequencies[coin]:
+         if word in wordInfluences:
+            wordFrequency = wordFrequencies[coin][word]
+            wordInfluence = wordInfluences[word][0] / wordInfluences[word][1]
+            wordScore = wordFrequency * wordInfluence
+            totalWordFrequency += wordFrequency
+            totalWordScore += wordScore
+   return totalWordScore/totalWordFrequency
 ########################################
 
 
@@ -149,11 +162,7 @@ def getCoinScores(wordFrequencies):
    try:
       wordInfluences = json.loads(open("wordInfluences.json").read())
    except: wordInfluences = {}
-   if len(wordInfluences) != 0:
-      wordPopularity = sum([coin[word] for coin in wordFrequencies])
-      avgWordScore = sum([(value[0] / value[1]) * wordPopularity for value in wordInfluences.values()]) / float(len(wordInfluences))
-   else:
-      avgWordScore = 0
+   avgWordScore = getAvgWordScore(wordInfluences, wordFrequencies)
    
    for coin in wordFrequencies:
       coinScore = 0
@@ -176,7 +185,7 @@ def saveCoinScores(avgWordSCore, coinScores):
       oldCoinScores = json.loads(open("historicalCoinScores.json").read())
    except: oldCoinScores = []
    oldCoinScores.append({"time": [timeUnix, currentTime], "avgWordScore": avgWordSCore, "coinScores": coinScores})
-   with open("historicalCoinScores.json", "w") as coinScoresFile:
+   with open("historicalCoinsScores.json", "w") as coinScoresFile:
       coinScoresFile.write(json.dumps(oldCoinScores, indent=2))
    print("Average word score: " + str(avgWordSCore))
    for coin in sorted(coinScores.items(), key=lambda x: x[1]):
@@ -187,6 +196,7 @@ import time
 import sys
 import traceback
 config = getConfig()
+#"""
 while True:
    time.sleep(getDelayTime(config, 1800))
    while True:
@@ -204,16 +214,17 @@ while True:
          try:
             logError(traceback.format_exc())
          except: pass
-         time.sleep(300)
+         time.sleep(300)#"""
 
 
 #Debugging:
-"""coinNames = getCoinNames(config)
+"""
+coinNames = getCoinNames(config)
 posts = amalgamatePosts(coinNames, config)
 categorizedPosts = categorizePosts(posts, coinNames)
 wordFrequencies = getWordFrequency(categorizedPosts)
 avgWordSCore, coinScores = getCoinScores(wordFrequencies)
-saveCoinScores(avgWordSCore, coinScores)"""
+saveCoinScores(avgWordSCore, coinScores)#"""
 
 
 #Made by Alexpimania 2017
