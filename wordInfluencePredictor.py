@@ -185,7 +185,7 @@ def saveCoinScores(avgWordSCore, coinScores):
       oldCoinScores = json.loads(open("historicalCoinScores.json").read())
    except: oldCoinScores = []
    oldCoinScores.append({"time": [timeUnix, currentTime], "avgWordScore": avgWordSCore, "coinScores": coinScores})
-   with open("historicalCoinsScores.json", "w") as coinScoresFile:
+   with open("historicalCoinScores.json", "w") as coinScoresFile:
       coinScoresFile.write(json.dumps(oldCoinScores, indent=2))
    print("Average word score: " + str(avgWordSCore))
    for coin in sorted(coinScores.items(), key=lambda x: x[1]):
