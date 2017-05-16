@@ -197,8 +197,7 @@ def updateFile():
    for word in wordInfluences:
       if not word in wordInfluencesFile:
          wordInfluencesFile[word] = [0, 0]
-      incrementCount = wordInfluencesFile[word][1]
-      totalInfluence = wordInfluencesFile[word][0]
+      totalInfluence, incrementCount = wordInfluencesFile[word]
       wordInfluencesFile[word] = [totalInfluence + wordInfluences[word][0], incrementCount + wordInfluences[word][1]]
    with open("wordInfluences.json", "w") as wordInfluencesFileObj:
       wordInfluencesFileObj.write(json.dumps(wordInfluencesFile, indent=2))
