@@ -202,25 +202,25 @@ def saveCoinScores():
    for coin in sorted(coinScores.items(), key=lambda x: x[1]):
       print(coin[0] + " " + str(coin[1]))
 
-
-import traceback
-#"""
-while True:
-   sleepForPeriod(1800)
+if __name__ == "__main__":
+   import traceback
+   #"""
    while True:
-      try:
-         saveCoinScores()    
-         break
-      except:
-         print("Exception occured: \n\n" + traceback.format_exc())
+      sleepForPeriod(1800)
+      while True:
          try:
-            logError(traceback.format_exc())
-         except: pass
-         time.sleep(300)#"""
+            saveCoinScores()    
+            break
+         except:
+            print("Exception occured: \n\n" + traceback.format_exc())
+            try:
+               logError(traceback.format_exc())
+            except: pass
+            time.sleep(300)#"""
 
 
-#Debugging:
-"""
-saveCoinScores()#"""
+   #Debugging:
+   """
+   saveCoinScores()#"""
 
 #Made by Alexpimania 2017
