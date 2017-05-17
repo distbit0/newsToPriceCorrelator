@@ -194,7 +194,7 @@ def getCoinScores():
    return coinScores
 
 
-def saveCoinScores():
+def updateFile():
    import json
    import time
    timeUnix = time.time()
@@ -209,25 +209,26 @@ def saveCoinScores():
    for coin in sorted(coinScores.items(), key=lambda x: x[1]):
       print(coin[0] + " " + str(coin[1]))
 
-if __name__ == "__main__":
+
+def loop():
    import traceback
-   #"""
    while True:
       sleepForPeriod(1800)
       while True:
          try:
-            saveCoinScores()    
+            updateFile()    
             break
          except:
             print("Exception occured: \n\n" + traceback.format_exc())
             try:
                logError(traceback.format_exc())
             except: pass
-            time.sleep(300)#"""
+            time.sleep(300)
 
 
-   #Debugging:
-   """
-   saveCoinScores()#"""
+if __name__ == "__main__":
+   loop()
+   #updateFile() #Debugging
+
 
 #Made by Alexpimania 2017
