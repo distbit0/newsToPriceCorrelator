@@ -151,7 +151,7 @@ def getWordFrequencies():
       wordOccurences = FreqDist(allWords).most_common()
       totalWordCount = len(allWords)
       for word in wordOccurences:
-         wordCountRatio = (word[1] / totalWordCount) * 100
+         wordCountRatio = (word[1] / totalWordCount)
          wordFrequencies[coin][word[0]] = wordCountRatio
    return wordFrequencies
 
@@ -164,12 +164,13 @@ def getPriceMovement():
    polo = Poloniex()
    coinPriceChanges = {}
    period = config["period"]
+   coinVols = polo.return24hVolume()
    for coin in coinNames:
       startTime = time.time() - period
       coinWtdAvg = float(polo.returnChartData(coinNames[coin], start=startTime)[0]["weightedAverage"])
       lastCoinWtdAvg = float(polo.returnChartData(coinNames[coin], start=startTime - period, end=startTime)[0]["weightedAverage"])
-      changePercent = ((coinWtdAvg / lastCoinWtdAvg) * 100) - 100
-      coinPriceChanges[coin] = changePercent  
+      changePercent = (coinWtdAvg / lastCoinWtdAvg) - 1
+      coinPriceChanges[coin] = [coinVols[coinNames[coin]], changePercent]
    return coinPriceChanges
 
 
@@ -178,12 +179,12 @@ def getWordInfluences():
    coinPriceChanges = getPriceMovement()
    wordFrequencies = getWordFrequencies()
    for coin in wordFrequencies:
-      coinPriceChange = coinPriceChanges[coin]
+      coinVol, coinPriceChange = coinPriceChanges[coin]
       for word in wordFrequencies[coin].keys():
          if not word in wordInfluences.keys():
             wordInfluences[word] = [0, 0]
          totalInfluence, incrementCount = wordInfluences[word]
-         wordInfluence = wordFrequencies[coin][word] * coinPriceChange
+         wordInfluence = wordFrequencies[coin][word] * coinPriceChange * coinVol
          wordInfluences[word] = [totalInfluence + wordInfluence, incrementCount + 1]
    return wordInfluences
 
