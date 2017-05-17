@@ -209,7 +209,7 @@ def updateFile():
 
 if __name__ == "__main__":
    import traceback
-   """
+   #"""
    while True:
       sleepForPeriod()
       while True:
@@ -225,7 +225,7 @@ if __name__ == "__main__":
 
 
    #Debugging
-   #"""
+   """
    updateFile()#"""
 
 
