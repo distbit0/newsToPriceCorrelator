@@ -207,10 +207,9 @@ def updateFile():
    with open("wordInfluences.json", "w") as wordInfluencesFileObj:
       wordInfluencesFileObj.write(json.dumps(wordInfluencesFile, indent=2))
 
-      
-if __name__ == "__main__":
+
+def loop():
    import traceback
-   #"""
    while True:
       sleepForPeriod()
       while True:
@@ -222,12 +221,12 @@ if __name__ == "__main__":
             try:
                logError(traceback.format_exc())
             except: pass
-            time.sleep(300)#"""
+            time.sleep(300)
 
 
-   #Debugging
-   """
-   updateFile()#"""
+if __name__ == "__main__":
+   loop()
+   #updateFile() #Debugging
 
 
 #Made by Alexpimania 2017
