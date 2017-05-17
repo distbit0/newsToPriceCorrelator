@@ -207,6 +207,7 @@ def updateFile():
    with open("wordInfluences.json", "w") as wordInfluencesFileObj:
       wordInfluencesFileObj.write(json.dumps(wordInfluencesFile, indent=2))
 
+      
 if __name__ == "__main__":
    import traceback
    #"""
