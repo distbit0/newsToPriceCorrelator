@@ -164,13 +164,16 @@ def getPriceMovement():
    polo = Poloniex()
    coinPriceChanges = {}
    period = config["period"]
-   coinVols = polo.return24hVolume()
+   #coinVols = polo.return24hVolume()
+   #totalVol = sum([float(coinVols[coin]["BTC"]) for coin in coinVols if "BTC_" in coin])
    for coin in coinNames:
       startTime = time.time() - period
       coinWtdAvg = float(polo.returnChartData(coinNames[coin], start=startTime)[0]["weightedAverage"])
       lastCoinWtdAvg = float(polo.returnChartData(coinNames[coin], start=startTime - period, end=startTime)[0]["weightedAverage"])
       changePercent = (coinWtdAvg / lastCoinWtdAvg) - 1
-      coinPriceChanges[coin] = [coinVols[coinNames[coin]], changePercent]
+      #coinVol = float(coinVols[coinNames[coin]]["BTC"]) / totalVol
+      #coinPriceChanges[coin] = [coinVol, changePercent]
+      coinPriceChanges[coin] = changePercent
    return coinPriceChanges
 
 
@@ -179,12 +182,13 @@ def getWordInfluences():
    coinPriceChanges = getPriceMovement()
    wordFrequencies = getWordFrequencies()
    for coin in wordFrequencies:
-      coinVol, coinPriceChange = coinPriceChanges[coin]
+      #coinVol, coinPriceChange = coinPriceChanges[coin]
+      coinPriceChange = coinPriceChanges[coin]
       for word in wordFrequencies[coin].keys():
          if not word in wordInfluences.keys():
             wordInfluences[word] = [0, 0]
          totalInfluence, incrementCount = wordInfluences[word]
-         wordInfluence = wordFrequencies[coin][word] * coinPriceChange * coinVol
+         wordInfluence = wordFrequencies[coin][word] * coinPriceChange# * coinVol
          wordInfluences[word] = [totalInfluence + wordInfluence, incrementCount + 1]
    return wordInfluences
 
@@ -203,26 +207,26 @@ def updateFile():
    with open("wordInfluences.json", "w") as wordInfluencesFileObj:
       wordInfluencesFileObj.write(json.dumps(wordInfluencesFile, indent=2))
 
-
-import traceback
-#"""
-while True:
-   sleepForPeriod()
+if __name__ == "__main__":
+   import traceback
+   """
    while True:
-      try:
-         updateFile()
-         break
-      except:
-         print("Exception occured: \n\n" + traceback.format_exc())
+      sleepForPeriod()
+      while True:
          try:
-            logError(traceback.format_exc())
-         except: pass
-         time.sleep(300)#"""
+            updateFile()
+            break
+         except:
+            print("Exception occured: \n\n" + traceback.format_exc())
+            try:
+               logError(traceback.format_exc())
+            except: pass
+            time.sleep(300)#"""
 
 
-#Debugging
-"""
-updateFile()#"""
+   #Debugging
+   #"""
+   updateFile()#"""
 
 
 #Made by Alexpimania 2017
