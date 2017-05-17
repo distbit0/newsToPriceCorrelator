@@ -211,7 +211,7 @@ def saveCoinScores():
 
 if __name__ == "__main__":
    import traceback
-   """
+   #"""
    while True:
       sleepForPeriod(1800)
       while True:
@@ -227,7 +227,7 @@ if __name__ == "__main__":
 
 
    #Debugging:
-   #"""
+   """
    saveCoinScores()#"""
 
 #Made by Alexpimania 2017
