@@ -160,8 +160,7 @@ def getWordFrequencies():
       wordOccurences = FreqDist(allWords).most_common()
       totalWordCount = len(allWords)
       for word in wordOccurences:
-         wordCountRatio = (word[1] / totalWordCount)
-         wordFrequencies[coin][word[0]] = wordCountRatio
+         wordFrequencies[coin][word[0]] = (word[1] / totalWordCount)
    return wordFrequencies
 
 
@@ -175,15 +174,24 @@ def getCoinScores():
    avgWordScore = getAvgWordScore(wordInfluences, wordFrequencies)
    
    for coin in wordFrequencies:
-      coinScore = 0
-      validWords = 0
+      totalPos = totalPosFreq = 0
+      totalNeg = totalNegFreq = 0
       for word in wordFrequencies[coin]:
          if word in wordInfluences:
-            coinScore += ((wordInfluences[word][0] / wordInfluences[word][1]) + (0 - avgWordScore)) * wordFrequencies[coin][word]
-            validWords += wordFrequencies[coin][word]
-      if validWords != 0:
-         coinScores[coin] = coinScore/validWords
-   return [coinScores]
+            wordInfluence = wordInfluences[word][0] / wordInfluences[word][1]
+            wordScore = (wordInfluence + -avgWordScore) * wordFrequencies[coin][word]
+            if wordScore > 0:
+               totalPos += wordScore
+               totalPosFreq += wordFrequencies[coin][word]
+            else:
+               totalNeg += abs(wordScore)
+               totalNegFreq += wordFrequencies[coin][word]
+      posScore = totalPos/totalPosFreq if totalPosFreq > 0 else 1
+      negScore = totalNeg/totalNegFreq if totalNegFreq > 0 else 1
+      if not (posScore == 1 or negScore == 1):
+         coinScores[coin] = posScore/negScore
+      
+   return coinScores
 
 
 def saveCoinScores():
@@ -198,13 +206,12 @@ def saveCoinScores():
    oldCoinScores.append({"time": [timeUnix, currentTime], "coinScores": coinScores})
    with open("historicalCoinScores.json", "w") as coinScoresFile:
       coinScoresFile.write(json.dumps(oldCoinScores, indent=2))
-   print("Average word score: " + str(avgWordScore))
    for coin in sorted(coinScores.items(), key=lambda x: x[1]):
       print(coin[0] + " " + str(coin[1]))
 
 if __name__ == "__main__":
    import traceback
-   #"""
+   """
    while True:
       sleepForPeriod(1800)
       while True:
@@ -220,7 +227,7 @@ if __name__ == "__main__":
 
 
    #Debugging:
-   """
+   #"""
    saveCoinScores()#"""
 
 #Made by Alexpimania 2017
