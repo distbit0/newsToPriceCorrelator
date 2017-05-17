@@ -160,7 +160,7 @@ def getWordFrequencies():
       wordOccurences = FreqDist(allWords).most_common()
       totalWordCount = len(allWords)
       for word in wordOccurences:
-         wordCountRatio = (word[1] / totalWordCount) * 100
+         wordCountRatio = (word[1] / totalWordCount)
          wordFrequencies[coin][word[0]] = wordCountRatio
    return wordFrequencies
 
@@ -179,23 +179,23 @@ def getCoinScores():
       validWords = 0
       for word in wordFrequencies[coin]:
          if word in wordInfluences:
-            coinScore += (wordInfluences[word][0] / wordInfluences[word][1]) * wordFrequencies[coin][word]
+            coinScore += ((wordInfluences[word][0] / wordInfluences[word][1]) + (0 - avgWordScore)) * wordFrequencies[coin][word]
             validWords += wordFrequencies[coin][word]
       if validWords != 0:
          coinScores[coin] = coinScore/validWords
-   return [avgWordScore, coinScores]
+   return [coinScores]
 
 
 def saveCoinScores():
    import json
    import time
    timeUnix = time.time()
-   avgWordScore, coinScores = getCoinScores()
+   coinScores = getCoinScores()
    currentTime = time.strftime("%Z - %d/%m/%Y, %H:%M:%S", time.localtime(time.time()))
    try:
       oldCoinScores = json.loads(open("historicalCoinScores.json").read())
    except: oldCoinScores = []
-   oldCoinScores.append({"time": [timeUnix, currentTime], "avgWordScore": avgWordScore, "coinScores": coinScores})
+   oldCoinScores.append({"time": [timeUnix, currentTime], "coinScores": coinScores})
    with open("historicalCoinScores.json", "w") as coinScoresFile:
       coinScoresFile.write(json.dumps(oldCoinScores, indent=2))
    print("Average word score: " + str(avgWordScore))
