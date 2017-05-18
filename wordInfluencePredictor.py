@@ -80,6 +80,7 @@ def sleepForPeriod(delay=0):
 def logError(error):
    import json
    import time
+   print("Exception occured: \n\n" + traceback.format_exc())
    currentTime = time.strftime("%Z - %d/%m/%Y, %H:%M:%S", time.localtime(time.time()))
    try:
       errorLogs = json.loads(open("errorLogs.json").read())
@@ -87,6 +88,7 @@ def logError(error):
    errorLogs.append({"time": currentTime, "error": error})
    with open("errorLogs.json", "w") as errorLogFile:
       errorLogFile.write(json.dumps(errorLogs, indent=2))
+   time.sleep(300)
       
       
 def getAvgWordScore(wordInfluences, wordFrequencies):
@@ -219,12 +221,8 @@ def loop():
             updateFile()    
             break
          except:
-            print("Exception occured: \n\n" + traceback.format_exc())
-            try:
-               logError(traceback.format_exc())
-            except: pass
-            time.sleep(300)
-
+            logError(traceback.format_exc())
+            
 
 if __name__ == "__main__":
    loop()
