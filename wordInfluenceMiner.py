@@ -152,8 +152,7 @@ def getWordFrequencies():
       wordOccurences = FreqDist(allWords).most_common()
       totalWordCount = len(allWords)
       for word in wordOccurences:
-         wordCountRatio = (word[1] / totalWordCount)
-         wordFrequencies[coin][word[0]] = wordCountRatio
+         wordFrequencies[coin][word[0]] = (word[1] / totalWordCount)
    return wordFrequencies
 
 
@@ -210,7 +209,6 @@ def updateFile():
 
 
 def loop():
-   import traceback
    while True:
       sleepForPeriod()
       while True:
