@@ -78,9 +78,11 @@ def sleepForPeriod(delay=0):
    time.sleep(period - (currentTime % period))
 
 
-def logError(error):
+def logError():
    import json
    import time
+   import traceback
+   error = traceback.format_exc()
    print("Exception occured: \n\n" + traceback.format_exc())
    currentTime = time.strftime("%Z - %d/%m/%Y, %H:%M:%S", time.localtime(time.time()))
    try:
@@ -216,7 +218,7 @@ def loop():
             updateFile()    
             break
          except:
-            logError(traceback.format_exc())
+            logError()
 
 
 if __name__ == "__main__":
