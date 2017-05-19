@@ -215,7 +215,6 @@ def updateFile():
 
 
 def loop():
-   import traceback
    while True:
       sleepForPeriod(1800)
       while True:
