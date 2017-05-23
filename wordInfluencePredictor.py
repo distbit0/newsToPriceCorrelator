@@ -74,7 +74,7 @@ def sleepForPeriod(delay=0):
    config = getConfig()
    period = config["period"]
    currentTime = time.time() - delay
-   time.sleep(period - (currentTime % period))
+   time.sleep(period - currentTime % period)
 
 
 def logError():
@@ -164,7 +164,7 @@ def getWordFrequencies():
       wordOccurences = FreqDist(allWords).most_common()
       totalWordCount = len(allWords)
       for word in wordOccurences:
-         wordFrequencies[coin][word[0]] = (word[1] / totalWordCount)
+         wordFrequencies[coin][word[0]] = word[1] / totalWordCount
    return wordFrequencies
 
 
