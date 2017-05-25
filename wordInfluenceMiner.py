@@ -170,7 +170,7 @@ def getPriceMovement():
       startTime = time.time() - period
       coinWtdAvg = float(polo.returnChartData(coinNames[coin], start=startTime)[0]["weightedAverage"])
       lastCoinWtdAvg = float(polo.returnChartData(coinNames[coin], start=startTime - period, end=startTime)[0]["weightedAverage"])
-      changePercent = (coinWtdAvg / lastCoinWtdAvg) - 1
+      changePercent = coinWtdAvg / lastCoinWtdAvg - 1
       #coinVol = float(coinVols[coinNames[coin]]["BTC"]) / totalVol
       #coinPriceChanges[coin] = [coinVol, changePercent]
       coinPriceChanges[coin] = changePercent
