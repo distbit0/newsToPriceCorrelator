@@ -42,7 +42,7 @@ def getTwitterPosts():
    api = initTwitterApi()
    sinceDate = datetime.fromtimestamp(time.time() - period * 2).strftime('%Y-%m-%d')
    untilDate = datetime.fromtimestamp(time.time() - period).strftime('%Y-%m-%d')
-   for chunk in chunks(coinNames, 10):
+   for chunk in chunks(coinNames, 1):
       for tweet in tweepy.Cursor(api.search, q=" OR ".join(chunk), tweet_mode="extended", until=untilDate, since=sinceDate, lang="en").items(1000):
          tweetText = removeText(tweet._json["full_text"]).lower().strip()
          tweetText = "".join([item for item in list(tweetText) if item not in list(string.punctuation)])
