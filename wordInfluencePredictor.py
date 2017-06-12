@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 
 
-##########Utility Functions#############
 def removeText(text, term="https?://[^\s]+"):
    import re
    term = "(?P<text>" + term + ")"
@@ -11,13 +10,12 @@ def removeText(text, term="https?://[^\s]+"):
          text = text.replace(textToRemove.group("text"), "").replace("  ", " ") 
       else: break
    return text
-  
-  
-def chunks(listToCut, maxLength):
-   chunkList = []
-   for i in range(0, len(listToCut), maxLength):
-      chunkList.append(listToCut[i:i+maxLength])
-   return chunkList
+
+
+def removeStopWords(wordsList):
+   config = getConfig()
+   wordsList = [word for word in wordsList if word.replace("'", "") not in config["stopWords"]]
+   return wordsList
 
 
 def initTwitterApi():
@@ -41,8 +39,8 @@ def getTwitterPosts():
    coinNames = list(getCoinNames())
    api = initTwitterApi()
    sinceDate = datetime.fromtimestamp(time.time() - period).strftime('%Y-%m-%d')
-   for chunk in chunks(coinNames, 1):
-      for tweet in tweepy.Cursor(api.search, q=" OR ".join(chunk), tweet_mode="extended", since=sinceDate, lang="en").items(1000):
+   for coin in coinNames:
+      for tweet in tweepy.Cursor(api.search, q=coin, tweet_mode="extended", since=sinceDate, lang="en").items(1000):
          tweetText = removeText(tweet._json["full_text"]).lower().strip()
          "".join([item for item in list(tweetText) if item not in list(string.punctuation)])
          tweets[tweetText] = tweet._json["user"]["id"]
@@ -50,23 +48,26 @@ def getTwitterPosts():
 
 
 def removeDuplicateWords(coinPosts):
+   config = getConfig()
    allCoinWords = []
    for user in coinPosts:
       userWords = []
       for post in coinPosts[user]: 
          userWords.extend(post.split(" "))
       allCoinWords.extend(list(set(userWords)))
+   allCoinWords = removeStopWords(allCoinWords)
    return allCoinWords
 
 
-def generateAndRemoveDuplicateBigrams(coinPosts):
-   bigrams = []
+def generateAndRemoveDuplicateNgrams(coinPosts):
+   ngrams = []
    for user in coinPosts:
-      userBigrams = []
+      userNgrams = []
       for post in coinPosts[user]:
-         userBigrams.extend([b[0] + " " + b[1] for b in zip(post.split(" ")[:-1], post.split(" ")[1:])])
-      bigrams.extend(list(set(userBigrams)))
-   return bigrams
+         userNgrams.extend([b[0] + " " + b[1] for b in zip(post.split(" ")[:-1], post.split(" ")[1:])])
+         userNgrams.extend([b[0] + " " + b[1] for b in zip(post.split(" ")[:-1], post.split(" ")[1:], post.split(" ")[2:])])
+      ngrams.extend(list(set(userNgrams)))
+   return ngrams
 
 
 def sleepForPeriod(delay=0):
@@ -104,7 +105,6 @@ def getAvgWordScore(wordInfluences, wordFrequencies):
             totalWordFrequency += wordFrequency
             totalWordScore += wordScore
    return totalWordScore/totalWordFrequency
-########################################
 
 
 def getConfig():
@@ -158,9 +158,9 @@ def getWordFrequencies():
    categorizedPosts = categorizePosts()
    for coin in categorizedPosts:
       wordFrequencies[coin] = {}
-      bigrams = generateAndRemoveDuplicateBigrams(categorizedPosts[coin])
+      ngrams = generateAndRemoveDuplicateNgrams(categorizedPosts[coin])
       allWords = removeDuplicateWords(categorizedPosts[coin])
-      allWords.extend(bigrams)
+      allWords.extend(ngrams)
       wordOccurences = FreqDist(allWords).most_common()
       totalWordCount = len(allWords)
       for word in wordOccurences:
@@ -172,6 +172,7 @@ def getCoinScores():
    import json
    wordFrequencies = getWordFrequencies()
    coinScores = {}
+   coinWords = {}
    try:
       wordInfluences = json.loads(open("wordInfluences.json").read())
    except: wordInfluences = {}
@@ -184,6 +185,9 @@ def getCoinScores():
          if word in wordInfluences:
             wordInfluence = wordInfluences[word][0] / wordInfluences[word][1]
             wordScore = (wordInfluence + -avgWordScore) * wordFrequencies[coin][word]
+            if coin not in coinWords: 
+               coinWords[coin] = {}
+            coinWords[coin][word] = wordScore
             if wordScore > 0:
                totalPos += wordScore
                totalPosFreq += wordFrequencies[coin][word]
@@ -194,13 +198,39 @@ def getCoinScores():
       negScore = totalNeg/totalNegFreq if totalNegFreq > 0 else 1
       if not (posScore == 1 or negScore == 1):
          coinScores[coin] = posScore/negScore
+         
+   for coin in coinWords:
+      sortedCoinWords = sorted(coinWords[coin].items(), key=lambda x: x[1])
+      topTenGoodWords = sortedCoinWords[-10:]
+      topTenBadWords = sortedCoinWords[:9]
+      print(coin + " goodWords: " + str(topTenGoodWords) + " badWords: " + str(topTenBadWords) + "\n\n")
       
    return coinScores
 
 
-def updateFile():
+def generateExcelFile():
+   import csv
+   import json
+   keys = []
+   historicalCoinScores = json.loads(open("historicalCoinScores.json").read())
+   timedCoinScores = []
+   for coinScores in historicalCoinScores:
+	   coinScores["coinScores"]["time"] = coinScores["time"][1]
+	   timedCoinScores.append(coinScores)
+   toCSV = [coinScores["coinScores"] for coinScores in timedCoinScores]
+   for coinScores in toCSV:
+	   keys.extend(list(coinScores.keys()))
+   keys = list(set(keys))
+   with open('coinScoresExcel.csv', 'w') as output_file:
+      dict_writer = csv.DictWriter(output_file, keys)
+      dict_writer.writeheader()
+      dict_writer.writerows(toCSV)
+    
+    
+def updateFile(outputFile="historicalCoinScores.json"):
    import json
    import time
+   generateExcelFile()
    timeUnix = time.time()
    coinScores = getCoinScores()
    currentTime = time.strftime("%Z - %d/%m/%Y, %H:%M:%S", time.localtime(time.time()))
@@ -208,26 +238,29 @@ def updateFile():
       oldCoinScores = json.loads(open("historicalCoinScores.json").read())
    except: oldCoinScores = []
    oldCoinScores.append({"time": [timeUnix, currentTime], "coinScores": coinScores})
-   with open("historicalCoinScores.json", "w") as coinScoresFile:
+   with open(outputFile, "w") as coinScoresFile:
       coinScoresFile.write(json.dumps(oldCoinScores, indent=2))
+   
+   currentTime = time.strftime("%Z - %d/%m/%Y, %H:%M:%S", time.localtime(time.time()))
+   print("Current time: " + currentTime)
    for coin in sorted(coinScores.items(), key=lambda x: x[1]):
       print(coin[0] + " " + str(coin[1]))
 
 
 def loop():
    while True:
-      sleepForPeriod(1800)
+      sleepForPeriod()
       while True:
          try:
-            updateFile()    
+            updateFile()
             break
          except:
             logError()
             
 
 if __name__ == "__main__":
-   loop()
-   #updateFile() #Debugging
+   #loop()
+   updateFile(outputFile="testHistoricalCoinScores.json") #Debugging
 
 
 #Made by Alexpimania 2017
