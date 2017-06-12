@@ -1,7 +1,7 @@
 import csv
 import json
 keys = []
-historicalCoinScores = json.loads(open("/home/ap/newsToPriceCorrelator-master/historicalCoinScores.json").read())
+historicalCoinScores = json.loads(open("historicalCoinScores.json").read())
 timedCoinScores = []
 for coinScores in historicalCoinScores:
 	coinScores["coinScores"]["time"] = coinScores["time"][1]
