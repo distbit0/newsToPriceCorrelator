@@ -41,6 +41,7 @@ def getCoinScores():
    import json
    wordFrequencies = getWordFrequencies()
    coinScores = {}
+   allCoinWords = {}
    coinWords = {}
    try:
       wordInfluences = json.loads(open("wordInfluences.json").read())
@@ -54,9 +55,9 @@ def getCoinScores():
          if word in wordInfluences:
             wordInfluence = wordInfluences[word][0] / wordInfluences[word][1]
             wordScore = (wordInfluence + -avgWordScore) * wordFrequencies[coin][word]
-            if coin not in coinWords: 
-               coinWords[coin] = {}
-            coinWords[coin][word] = wordScore
+            if coin not in allCoinWords: 
+               allCoinWords[coin] = {}
+            allCoinWords[coin][word] = wordScore
             if wordScore > 0:
                totalPos += wordScore
                totalPosFreq += wordFrequencies[coin][word]
@@ -68,20 +69,23 @@ def getCoinScores():
       if not (posScore == 1 or negScore == 1):
          coinScores[coin] = posScore/negScore
          
-   for coin in coinWords:
-      sortedCoinWords = sorted(coinWords[coin].items(), key=lambda x: x[1])
+   for coin in allCoinWords:
+      sortedCoinWords = sorted(allCoinWords[coin].items(), key=lambda x: x[1])
       topTenGoodWords = sortedCoinWords[-10:]
       topTenBadWords = sortedCoinWords[:9]
-      print(coin + " goodWords: " + str(topTenGoodWords) + " badWords: " + str(topTenBadWords) + "\n\n")
+      coinWords[coin] = {"bad":topTenBadWords, "good":topTenGoodWords}
       
-   return coinScores
+   return [coinScores, coinWords]
 
 
 def generateExcelFile():
    import csv
    import json
    keys = []
-   historicalCoinScores = json.loads(open("historicalCoinScores.json").read())
+   try:
+      historicalCoinScores = json.loads(open("historicalCoinScores.json").read())
+   except:
+      historicalCoinScores = []
    timedCoinScores = []
    for coinScores in historicalCoinScores:
 	   coinScores["coinScores"]["time"] = coinScores["time"][1]
@@ -95,23 +99,31 @@ def generateExcelFile():
       dict_writer.writeheader()
       dict_writer.writerows(toCSV)
     
+def generatePredictionChart():
+   try:
+      historicalCoinScores = json.loads(open("historicalCoinScores.json").read())
+   except:
+      historicalCoinScores = []
+   
     
 def updateFile(outputFile="historicalCoinScores.json"):
    import json
    import time
    generateExcelFile()
    timeUnix = time.time()
-   coinScores = getCoinScores()
+   coinScores, coinWords = getCoinScores()
    currentTime = time.strftime("%Z - %d/%m/%Y, %H:%M:%S", time.localtime(time.time()))
    try:
       oldCoinScores = json.loads(open("historicalCoinScores.json").read())
    except: oldCoinScores = []
-   oldCoinScores.append({"time": [timeUnix, currentTime], "coinScores": coinScores})
+   oldCoinScores.append({"time": [timeUnix, currentTime], "coinScores": coinScores, "coinWords": coinWords})
    with open(outputFile, "w") as coinScoresFile:
       coinScoresFile.write(json.dumps(oldCoinScores, indent=2))
    
    currentTime = time.strftime("%Z - %d/%m/%Y, %H:%M:%S", time.localtime(time.time()))
    print("Current time: " + currentTime)
+   for coin in coinWords:
+      print(coin + " goodWords: " + str(coinWords[coin]["good"]) + " badWords: " + str(coinWords[coin]["bad"]) + "\n\n")
    for coin in sorted(coinScores.items(), key=lambda x: x[1]):
       print(coin[0] + " " + str(coin[1]))
 
