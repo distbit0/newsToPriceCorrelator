@@ -11,8 +11,17 @@ def removeText(text, term="https?://[^\s]+"):
 
 def removeStopWords(wordsList):
    config = getConfig()
-   wordsList = [word for word in wordsList if word.replace("'", "") not in config["stopWords"]]
-   return wordsList
+   if type(wordsList) == list:
+      wordsList = [word for word in wordsList if not (word.replace("'", "") in config["stopWords"] or set([word.replace("'", "") for part in word]) < set(config["stopWords"]))]
+      return wordsList
+         
+   if type(wordsList) == dict:
+      for word in wordsList:
+         if word.replace("'", "") in config["stopWords"]:
+            del wordsList[word]
+         if set([word.replace("'", "") for part in word]) < set(config["stopWords"]):
+            del wordsList[word]
+      return wordsList
    
    
 def removeDuplicateWords(coinPosts):
@@ -29,12 +38,14 @@ def removeDuplicateWords(coinPosts):
 
 def generateAndRemoveDuplicateNgrams(coinPosts):
    ngrams = []
+   config = getConfig()
    for user in coinPosts:
       userNgrams = []
       for post in coinPosts[user]:
          userNgrams.extend([b[0] + " " + b[1] for b in zip(post.split(" ")[:-1], post.split(" ")[1:])])
          userNgrams.extend([b[0] + " " + b[1] for b in zip(post.split(" ")[:-1], post.split(" ")[1:], post.split(" ")[2:])])
       ngrams.extend(list(set(userNgrams)))
+   ngrams = [ngram for ngram in ngrams if [word.replace("'", "") for word in ngram] < config["stopWords"]]
    return ngrams
    
    
