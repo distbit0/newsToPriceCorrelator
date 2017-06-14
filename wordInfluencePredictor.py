@@ -117,7 +117,7 @@ def updateFile(outputFile="historicalCoinScores.json"):
    try:
       oldCoinScores = json.loads(open(outputFile).read())
    except: oldCoinScores = []
-   oldCoinScores.append({"time": [timeUnix, currentTime], "coinScores": coinScores, "coinWords": coinWords})
+   oldCoinScores.append({"time": [timeUnix, currentTime], "coinScores": coinScores, "coinWords": coinWords["siacoin"]})
    with open(outputFile, "w") as coinScoresFile:
       coinScoresFile.write(json.dumps(oldCoinScores, indent=2))
    
