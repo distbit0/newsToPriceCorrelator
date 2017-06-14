@@ -13,7 +13,7 @@ def getTwitterPosts():
    
    config = getConfig()
    period = config["period"]
-   coinNames = list(getCoinNames())
+   coinNames = ["siacoin"]#list(getCoinNames())
    api = initTwitterApi("Miner")
    sinceDate = datetime.fromtimestamp(time.time() - period * 2).strftime('%Y-%m-%d')
    untilDate = datetime.fromtimestamp(time.time() - period).strftime('%Y-%m-%d')
@@ -62,7 +62,7 @@ def updateFile(outputFile="wordInfluences.json"):
    config = getConfig()
    wordInfluences = getWordInfluences()
    try:
-      wordInfluencesFile = json.loads(open("wordInfluences.json").read())
+      wordInfluencesFile = json.loads(open(outputFile).read())
    except: wordInfluencesFile = {}
    for word in wordInfluences:
       if not word in wordInfluencesFile:
@@ -86,8 +86,8 @@ def loop():
 
 
 if __name__ == "__main__":
-   loop()
-   #updateFile(outputFile="testWordInfluences.json") #Debugging
+   #loop()
+   updateFile(outputFile="testWordInfluences.json") #Debugging
 
 
 #Made by Alexpimania 2017
