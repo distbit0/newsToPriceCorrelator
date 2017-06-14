@@ -13,7 +13,7 @@ def getTwitterPosts():
    
    config = getConfig()
    period = config["period"]
-   coinNames = list(getCoinNames())
+   coinNames = ["siacoin"]#list(getCoinNames())
    api = initTwitterApi("Predictor")
    sinceDate = datetime.fromtimestamp(time.time() - period).strftime('%Y-%m-%d')
    for coin in coinNames:
@@ -105,6 +105,7 @@ def generatePredictionChart():
    except:
       historicalCoinScores = []
    
+   
     
 def updateFile(outputFile="historicalCoinScores.json"):
    import json
@@ -114,7 +115,7 @@ def updateFile(outputFile="historicalCoinScores.json"):
    coinScores, coinWords = getCoinScores()
    currentTime = time.strftime("%Z - %d/%m/%Y, %H:%M:%S", time.localtime(time.time()))
    try:
-      oldCoinScores = json.loads(open("historicalCoinScores.json").read())
+      oldCoinScores = json.loads(open(outputFile).read())
    except: oldCoinScores = []
    oldCoinScores.append({"time": [timeUnix, currentTime], "coinScores": coinScores, "coinWords": coinWords})
    with open(outputFile, "w") as coinScoresFile:
@@ -140,8 +141,8 @@ def loop():
             
 
 if __name__ == "__main__":
-   loop()
-   #updateFile(outputFile="testHistoricalCoinScores.json") #Debugging
+   #loop()
+   updateFile(outputFile="testHistoricalCoinScores.json") #Debugging
 
 
 #Made by Alexpimania 2017
