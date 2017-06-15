@@ -13,7 +13,7 @@ def getTwitterPosts():
    
    config = getConfig()
    period = config["period"]
-   coinNames = ["siacoin"]#list(getCoinNames())
+   coinNames = list(getCoinNames())
    api = initTwitterApi("Predictor")
    sinceDate = datetime.fromtimestamp(time.time() - period).strftime('%Y-%m-%d')
    for coin in coinNames:
@@ -98,13 +98,6 @@ def generateExcelFile():
       dict_writer = csv.DictWriter(output_file, keys)
       dict_writer.writeheader()
       dict_writer.writerows(toCSV)
-    
-def generatePredictionChart():
-   try:
-      historicalCoinScores = json.loads(open("historicalCoinScores.json").read())
-   except:
-      historicalCoinScores = []
-   
    
     
 def updateFile(outputFile="historicalCoinScores.json"):
@@ -117,7 +110,7 @@ def updateFile(outputFile="historicalCoinScores.json"):
    try:
       oldCoinScores = json.loads(open(outputFile).read())
    except: oldCoinScores = []
-   oldCoinScores.append({"time": [timeUnix, currentTime], "coinScores": coinScores, "coinWords": coinWords["siacoin"]})
+   oldCoinScores.append({"time": [timeUnix, currentTime], "coinScores": coinScores, "coinWords": coinWords})
    with open(outputFile, "w") as coinScoresFile:
       coinScoresFile.write(json.dumps(oldCoinScores, indent=2))
    
@@ -141,8 +134,8 @@ def loop():
             
 
 if __name__ == "__main__":
-   #loop()
-   updateFile(outputFile="testHistoricalCoinScores.json") #Debugging
+   loop()
+   #updateFile(outputFile="testHistoricalCoinScores.json") #Debugging
 
 
 #Made by Alexpimania 2017
