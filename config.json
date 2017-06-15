@@ -36,7 +36,7 @@
    "email":{
       "username":"snazzyemailsender@gmail.com",
       "password":"wsxcdeWSXCDE99!wsxcdeWSXCDE99!",
-      "recipients":["snazzyemailsender@gmail.com","randomiseme33@gmail.com", "brianpasf@gmail.com"],
+      "recipients":["snazzyemailsender@gmail.com","randomiseme33@gmail.com", "brianpasf@gmail.com", "iheartbtc@hotmail.com", "Chrisfalcon33@gmail.com"],
       "fileNames": ["historicalCoinScores.json", "coinScoresExcel.csv", "wordInfluences.json"]
    }
 }
