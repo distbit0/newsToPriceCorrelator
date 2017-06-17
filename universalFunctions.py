@@ -19,7 +19,7 @@ def removeStopWords(wordsList):
       for word in wordsList:
          if word.replace("'", "") in config["stopWords"]:
             del wordsList[word]
-         if set([word.replace("'", "") for part in word]) < set(config["stopWords"]):
+         elif set([word.replace("'", "") for part in word]) < set(config["stopWords"]):
             del wordsList[word]
       return wordsList
    
