@@ -16,12 +16,15 @@ def removeStopWords(wordsList):
       return wordsList
          
    if type(wordsList) == dict:
+      editedWordList = {}
       for word in wordsList:
          if word.replace("'", "") in config["stopWords"]:
-            del wordsList[word]
+            pass
          elif set([word.replace("'", "") for part in word]) < set(config["stopWords"]):
-            del wordsList[word]
-      return wordsList
+            pass
+         else:
+            editedWordList[word] = wordsList[word]
+      return editedWordList
    
    
 def removeDuplicateWords(coinPosts):
@@ -37,15 +40,16 @@ def removeDuplicateWords(coinPosts):
    
 
 def generateAndRemoveDuplicateNgrams(coinPosts):
+   import nltk
    ngrams = []
    config = getConfig()
    for user in coinPosts:
       userNgrams = []
       for post in coinPosts[user]:
-         userNgrams.extend([b[0] + " " + b[1] for b in zip(post.split(" ")[:-1], post.split(" ")[1:])])
-         userNgrams.extend([b[0] + " " + b[1] for b in zip(post.split(" ")[:-1], post.split(" ")[1:], post.split(" ")[2:])])
+         userNgrams.extend([" ".join(list(ngram)) for ngram in nltk.ngrams(post.split(), 2)])
+         userNgrams.extend([" ".join(list(ngram)) for ngram in nltk.ngrams(post.split(), 3)])
       ngrams.extend(list(set(userNgrams)))
-   ngrams = [ngram for ngram in ngrams if [word.replace("'", "") for word in ngram] < config["stopWords"]]
+   ngrams = [ngram for ngram in ngrams if not ([word.replace("'", "") for word in ngram] < config["stopWords"])]
    return ngrams
    
    
