@@ -20,7 +20,7 @@ def getTwitterPosts():
    for coin in coinNames:
       for tweet in tweepy.Cursor(api.search, q=coin, tweet_mode="extended", until=untilDate, since=sinceDate, lang="en").items(1000):
          tweetText = removeText(tweet._json["full_text"]).lower().strip()
-         tweetText = "".join([item for item in list(tweetText) if item not in list(string.punctuation)])
+         tweetText = "".join([item for item in list(tweetText) if item not in list(string.punctuation + "#!()-$@/'?")])
          tweets[tweetText] = tweet._json["user"]["id"]
    return tweets
 
