@@ -28,7 +28,6 @@ def removeStopWords(wordsList):
    
    
 def removeDuplicateWords(coinPosts):
-   config = getConfig()
    allCoinWords = []
    for user in coinPosts:
       userWords = []
@@ -42,7 +41,6 @@ def removeDuplicateWords(coinPosts):
 def generateAndRemoveDuplicateNgrams(coinPosts):
    import nltk
    ngrams = []
-   config = getConfig()
    for user in coinPosts:
       userNgrams = []
       for post in coinPosts[user]:
@@ -109,7 +107,6 @@ def initTwitterApi(function):
 def amalgamatePosts():
    posts = {}
    coinNames = getCoinNames()
-   config = getConfig()
    posts.update(getTwitterPosts())
    return posts
    
