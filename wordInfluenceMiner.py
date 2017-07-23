@@ -71,7 +71,7 @@ def updateFile(outputFile="wordInfluences.json"):
       wordInfluencesFile[word] = [totalInfluence + wordInfluences[word][0], incrementCount + wordInfluences[word][1]]
    wordInfluencesFile = removeStopWords(wordInfluencesFile)
    with open(outputFile, "w") as wordInfluencesFileObj:
-      wordInfluencesFileObj.write(json.dumps(wordInfluencesFile, indent=2))
+      wordInfluencesFileObj.write(json.dumps(wordInfluencesFile, indent=2, sort_keys=True))
 
 
 def loop():
@@ -88,6 +88,6 @@ def loop():
 if __name__ == "__main__":
    loop()
    #updateFile(outputFile="testWordInfluences.json") #Debugging
-
+   #updateFile()
 
 #Made by Alexpimania 2017
