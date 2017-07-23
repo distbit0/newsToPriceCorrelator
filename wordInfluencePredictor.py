@@ -112,12 +112,12 @@ def updateFile(outputFile="historicalCoinScores.json"):
    except: oldCoinScores = []
    oldCoinScores.append({"time": [timeUnix, currentTime], "coinScores": coinScores, "coinWords": coinWords})
    with open(outputFile, "w") as coinScoresFile:
-      coinScoresFile.write(json.dumps(oldCoinScores, indent=2))
+      coinScoresFile.write(json.dumps(oldCoinScores, indent=2, sort_keys=True))
    
    currentTime = time.strftime("%Z - %d/%m/%Y, %H:%M:%S", time.localtime(time.time()))
-   print("Current time: " + currentTime)
    for coin in coinWords:
       print(coin + " goodWords: " + str(coinWords[coin]["good"]) + " badWords: " + str(coinWords[coin]["bad"]) + "\n\n")
+   print("Current time: " + currentTime)
    for coin in sorted(coinScores.items(), key=lambda x: x[1]):
       print(coin[0] + " " + str(coin[1]))
 
@@ -136,6 +136,7 @@ def loop():
 if __name__ == "__main__":
    loop()
    #updateFile(outputFile="testHistoricalCoinScores.json") #Debugging
+   #updateFile()
 
 
 #Made by Alexpimania 2017
