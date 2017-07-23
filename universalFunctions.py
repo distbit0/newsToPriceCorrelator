@@ -28,7 +28,6 @@ def removeStopWords(wordsList):
    
    
 def removeDuplicateWords(coinPosts):
-   config = getConfig()
    allCoinWords = []
    for user in coinPosts:
       userWords = []
@@ -109,7 +108,6 @@ def initTwitterApi(function):
 def amalgamatePosts():
    posts = {}
    coinNames = getCoinNames()
-   config = getConfig()
    posts.update(getTwitterPosts())
    return posts
    
