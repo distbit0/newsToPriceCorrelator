@@ -72,7 +72,7 @@ def logError():
    except: errorLogs = []
    errorLogs.append({"time": currentTime, "error": error})
    with open("errorLogs.json", "w") as errorLogFile:
-      errorLogFile.write(json.dumps(errorLogs, indent=2, sort_keys=True))))
+      errorLogFile.write(json.dumps(errorLogs, indent=2, sort_keys=True))
    time.sleep(300)
    
    
