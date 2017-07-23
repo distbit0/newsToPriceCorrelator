@@ -28,6 +28,7 @@ def removeStopWords(wordsList):
    
    
 def removeDuplicateWords(coinPosts):
+   config = getConfig()
    allCoinWords = []
    for user in coinPosts:
       userWords = []
@@ -41,6 +42,7 @@ def removeDuplicateWords(coinPosts):
 def generateAndRemoveDuplicateNgrams(coinPosts):
    import nltk
    ngrams = []
+   config = getConfig()
    for user in coinPosts:
       userNgrams = []
       for post in coinPosts[user]:
@@ -71,7 +73,7 @@ def logError():
    except: errorLogs = []
    errorLogs.append({"time": currentTime, "error": error})
    with open("errorLogs.json", "w") as errorLogFile:
-      errorLogFile.write(json.dumps(errorLogs, indent=2))
+      errorLogFile.write(json.dumps(errorLogs, indent=2, sort_keys=True))))
    time.sleep(300)
    
    
@@ -107,6 +109,7 @@ def initTwitterApi(function):
 def amalgamatePosts():
    posts = {}
    coinNames = getCoinNames()
+   config = getConfig()
    posts.update(getTwitterPosts())
    return posts
    
